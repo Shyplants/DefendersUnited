@@ -6,6 +6,7 @@
 
 ADefendersUnitedProjectile::ADefendersUnitedProjectile() 
 {
+	BulletDamage = 25;
 	// Use a sphere as a simple collision representation
 	CollisionComp = CreateDefaultSubobject<USphereComponent>(TEXT("SphereComp"));
 	CollisionComp->InitSphereRadius(5.0f);
@@ -40,4 +41,19 @@ void ADefendersUnitedProjectile::OnHit(UPrimitiveComponent* HitComp, AActor* Oth
 
 		Destroy();
 	}
+}
+
+void ADefendersUnitedProjectile::NotifyHit(UPrimitiveComponent* MyComp, AActor* Other, UPrimitiveComponent* OtherComp, bool bSelfMoved, FVector HitLocation, FVector HitNormal, FVector NormalImpulse, const FHitResult& Hit)
+{
+	this->Destroy();
+}
+
+void ADefendersUnitedProjectile::SetDamage(float Damage)
+{
+	BulletDamage = Damage;
+}
+
+float ADefendersUnitedProjectile::GetDamage()
+{
+	return BulletDamage;
 }

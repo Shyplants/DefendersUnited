@@ -41,7 +41,7 @@ void UTP_WeaponComponent::Fire()
 			ActorSpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AdjustIfPossibleButDontSpawnIfColliding;
 	
 			// Spawn the projectile at the muzzle
-			World->SpawnActor<ADefendersUnitedProjectile>(ProjectileClass, SpawnLocation, SpawnRotation, ActorSpawnParams);
+			World->SpawnActor<ADefendersUnitedProjectile>(ProjectileClass, SpawnLocation, SpawnRotation, ActorSpawnParams); // 생성된 불릿에 캐릭터의 공격력을 넣어줄 것. ->SetDamage(Character->AttackPower)
 		}
 	}
 	
