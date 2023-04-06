@@ -41,7 +41,7 @@ void UTP_WeaponComponent::Fire()
 			ActorSpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AdjustIfPossibleButDontSpawnIfColliding;
 	
 			// Spawn the projectile at the muzzle
-			World->SpawnActor<ADefendersUnitedProjectile>(ProjectileClass, SpawnLocation, SpawnRotation, ActorSpawnParams); // »ý¼ºµÈ ºÒ¸´¿¡ Ä³¸¯ÅÍÀÇ °ø°Ý·ÂÀ» ³Ö¾îÁÙ °Í. ->SetDamage(Character->AttackPower)
+			World->SpawnActor<ADefendersUnitedProjectile>(ProjectileClass, SpawnLocation, SpawnRotation, ActorSpawnParams); // ìƒì„±ëœ ë¶ˆë¦¿ì— ìºë¦­í„°ì˜ ê³µê²©ë ¥ì„ ë„£ì–´ì¤„ ê²ƒ. ->SetDamage(Character->AttackPower)
 		}
 	}
 	

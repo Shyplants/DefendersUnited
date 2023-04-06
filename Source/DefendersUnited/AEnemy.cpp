@@ -44,7 +44,7 @@ AAEnemy::AAEnemy()
 	BoxMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("BoxMesh"));
 	RootComponent = BoxMesh;
 
-	// ¸ó½ºÅÍÀÇ ·¹¾îµµ °áÁ¤ ¹× ±×¿¡ µû¸¥ ¸®Á¨ È®·ü ¹× ½ºÅ×ÀÌÅÍ½º °áÁ¤
+	// ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½îµµ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ ï¿½×¿ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ È®ï¿½ï¿½ ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Í½ï¿½ ï¿½ï¿½ï¿½ï¿½
 
 }
 
@@ -71,10 +71,12 @@ void AAEnemy::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 void AAEnemy::ApplyDamage(int damage)
 {
 	HP -= damage;
-	UE_LOG(LogTemp, Warning, TEXT("%d"), HP);
+	UE_LOG(LogTemp, Warning, TEXT("HP: %d"), HP);
+	UE_LOG(LogTemp, Warning, TEXT("damage: %d"), damage);
 	if (HP <= 0) this->Destroy();
 }
 
+/*
 void AAEnemy::NotifyHit(UPrimitiveComponent* MyComp, AActor* Other, UPrimitiveComponent* OtherComp, bool bSelfMoved, FVector HitLocation, FVector HitNormal, FVector NormalImpulse, const FHitResult& Hit)
 {
 	//UE_LOG(LogTemp, Warning, TEXT("enmey %s"), *Other->GetName());
@@ -83,6 +85,7 @@ void AAEnemy::NotifyHit(UPrimitiveComponent* MyComp, AActor* Other, UPrimitiveCo
 	if (Projectile)
 	{
 		ApplyDamage(Projectile->GetDamage());
-		// ÃÑ¾Ë¿¡ µ¥¹ÌÁö¸¦ ³Ö¾îµÎ¾î¾ß ÇÒ µíÇÔ. ÃÑ¾Ë Ä³½ºÆ®¸¦ ÅëÇØ µ¥¹ÌÁö¸¦ °¡Á®¿À°í µ¥¹ÌÁö¸¦ ÀÔÈ÷´Â ¹æ½ÄÀ» »ç¿ë.
+		// ï¿½Ñ¾Ë¿ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½Ö¾ï¿½Î¾ï¿½ï¿½ ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½. ï¿½Ñ¾ï¿½ Ä³ï¿½ï¿½Æ®ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½.
 	}
 }
+*/

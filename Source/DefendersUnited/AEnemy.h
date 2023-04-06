@@ -36,7 +36,7 @@ protected:
 
 	//virtual void NotifyActorBeginOverlap(AActor* OtherActor) override;
 
-	virtual void NotifyHit(UPrimitiveComponent* MyComp, AActor* Other, UPrimitiveComponent* OtherComp, bool bSelfMoved, FVector HitLocation, FVector HitNormal, FVector NormalImpulse, const FHitResult& Hit) override;
+	//virtual void NotifyHit(UPrimitiveComponent* MyComp, AActor* Other, UPrimitiveComponent* OtherComp, bool bSelfMoved, FVector HitLocation, FVector HitNormal, FVector NormalImpulse, const FHitResult& Hit) override;
 	//virtual void PostInitializeComponents() override;
 
 
@@ -51,18 +51,18 @@ public:
 	void ApplyDamage(int damage);
 
 	UPROPERTY(EditAnywhere)
-		class UStaticMeshComponent* BoxMesh;
+	class UStaticMeshComponent* BoxMesh;
 
 	UPROPERTY(VisibleAnyWhere)
-		int CreateProbability;
+	int CreateProbability;
 
 	UPROPERTY(EditAnyWhere)
-		Rarity Type;
+	Rarity Type;
 
 	UPROPERTY(EditAnyWhere)
-		bool AttackFlag;
+	bool AttackFlag;
 
 	UPROPERTY(EditAnyWhere)
-		class AActor* AttackObject;
+	class AActor* AttackObject;
 	
 };
