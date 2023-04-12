@@ -2,11 +2,9 @@
 
 
 #include "Projectile.h"
-
 #include "Components/SphereComponent.h"
 #include "GameFramework/ProjectileMovementComponent.h"
-
-#include "AEnemy.h"
+#include "DUEnemy.h"
 
 // Sets default values
 AProjectile::AProjectile()
@@ -48,9 +46,14 @@ void AProjectile::OnHit(UPrimitiveComponent* HitComp, AActor* OtherActor,
 	UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep,
 	const FHitResult& Hit)
 {
-	AAEnemy* Enemy = Cast<AAEnemy>(OtherActor);
+	ADUEnemy* Enemy = Cast<ADUEnemy>(OtherActor);
+
+	//UE_LOG(LogTemp, Warning, TEXT("%s"), *Enemy->GetName());
+
 	if (Enemy)
 	{
+		UE_LOG(LogTemp, Warning, TEXT("충돌감지2"));
+
 		Enemy->ApplyDamage(DamageValue);
 
 		Destroy();

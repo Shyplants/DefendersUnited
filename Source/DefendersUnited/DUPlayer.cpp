@@ -1,9 +1,9 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 
-#include "APlayer.h"
+#include "DUPlayer.h"
 
-AAPlayer::AAPlayer()
+ADUPlayer::ADUPlayer()
 {
 	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
@@ -54,20 +54,20 @@ AAPlayer::AAPlayer()
 }
 
 // Called when the game starts or when spawned
-void AAPlayer::BeginPlay()
+void ADUPlayer::BeginPlay()
 {
 	Super::BeginPlay();
 
 }
 
 // Called every frame
-void AAPlayer::Tick(float DeltaTime)
+void ADUPlayer::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
 }
 
-void AAPlayer::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
+void ADUPlayer::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 {
 	Super::SetupPlayerInputComponent(PlayerInputComponent);
 

@@ -1,9 +1,9 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 
-#include "AEnemy.h"
+#include "DUEnemy.h"
 
-AAEnemy::AAEnemy()
+ADUEnemy::ADUEnemy()
 {
 	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
@@ -44,48 +44,32 @@ AAEnemy::AAEnemy()
 	BoxMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("BoxMesh"));
 	RootComponent = BoxMesh;
 
-	// ������ ��� ���� �� �׿� ���� ���� Ȯ�� �� �������ͽ� ����
-
 }
 
 // Called when the game starts or when spawned
-void AAEnemy::BeginPlay()
+void ADUEnemy::BeginPlay()
 {
 	Super::BeginPlay();
 
 }
 
 // Called every frame
-void AAEnemy::Tick(float DeltaTime)
+void ADUEnemy::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
 }
 
-void AAEnemy::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
+void ADUEnemy::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 {
 	Super::SetupPlayerInputComponent(PlayerInputComponent);
 
 }
 
-void AAEnemy::ApplyDamage(int damage)
+void ADUEnemy::ApplyDamage(int damage)
 {
 	HP -= damage;
 	UE_LOG(LogTemp, Warning, TEXT("HP: %d"), HP);
 	UE_LOG(LogTemp, Warning, TEXT("damage: %d"), damage);
 	if (HP <= 0) this->Destroy();
 }
-
-/*
-void AAEnemy::NotifyHit(UPrimitiveComponent* MyComp, AActor* Other, UPrimitiveComponent* OtherComp, bool bSelfMoved, FVector HitLocation, FVector HitNormal, FVector NormalImpulse, const FHitResult& Hit)
-{
-	//UE_LOG(LogTemp, Warning, TEXT("enmey %s"), *Other->GetName());
-
-	ADefendersUnitedProjectile* Projectile = Cast<ADefendersUnitedProjectile>(Other);
-	if (Projectile)
-	{
-		ApplyDamage(Projectile->GetDamage());
-		// �Ѿ˿� �������� �־�ξ�� �� ����. �Ѿ� ĳ��Ʈ�� ���� �������� �������� �������� ������ ����� ���.
-	}
-}
-*/

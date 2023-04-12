@@ -21,9 +21,9 @@ enum class Rarity
 	Unique
 };
 
-class DEFENDERSUNITED_API AEnumClass
+class DEFENDERSUNITED_API DUEnumClass
 {
 public:
-	AEnumClass();
-	~AEnumClass();
+	DUEnumClass();
+	~DUEnumClass();
 };

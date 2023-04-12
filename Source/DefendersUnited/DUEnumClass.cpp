@@ -1,12 +1,12 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 
-#include "AEnumClass.h"
+#include "DUEnumClass.h"
 
-AEnumClass::AEnumClass()
+DUEnumClass::DUEnumClass()
 {
 }
 
-AEnumClass::~AEnumClass()
+DUEnumClass::~DUEnumClass()
 {
 }

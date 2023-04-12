@@ -4,16 +4,16 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Pawn.h"
-#include "ACreature.generated.h"
+#include "DUCreature.generated.h"
 
 UCLASS()
-class DEFENDERSUNITED_API AACreature : public APawn
+class DEFENDERSUNITED_API ADUCreature : public APawn
 {
 	GENERATED_BODY()
 
 public:
 	// Sets default values for this pawn's properties
-	AACreature();
+	ADUCreature();
 
 protected:
 	// Called when the game starts or when spawned

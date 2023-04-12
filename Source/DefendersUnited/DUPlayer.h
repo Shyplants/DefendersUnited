@@ -3,15 +3,15 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "ACreature.h"
-#include "AEnumClass.h"
-#include "APlayer.generated.h"
+#include "DUCreature.h"
+#include "DUEnumClass.h"
+#include "DUPlayer.generated.h"
 
 /**
  * 
  */
 UCLASS()
-class DEFENDERSUNITED_API AAPlayer : public AACreature
+class DEFENDERSUNITED_API ADUPlayer : public ADUCreature
 {
 	GENERATED_BODY()
 
@@ -19,7 +19,7 @@ private:
 
 public:
 	// Sets default values for this pawn's properties
-	AAPlayer();
+	ADUPlayer();
 
 protected:
 	// Called when the game starts or when spawned
