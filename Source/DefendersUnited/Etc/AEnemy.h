@@ -5,7 +5,7 @@
 #include "CoreMinimal.h"
 #include "ACreature.h"
 #include "AEnumClass.h"
-#include "DefendersUnitedProjectile.h"
+#include "DefendersUnited/Weapon/DefendersUnitedProjectile.h"
 #include "AEnemy.generated.h"
 
 /**

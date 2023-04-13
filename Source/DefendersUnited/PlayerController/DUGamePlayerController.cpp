@@ -2,7 +2,7 @@
 
 
 #include "DUGamePlayerController.h"
-#include "GamePlayWidget.h"
+#include "DefendersUnited/HUD/GamePlayWidget.h"
 
 ADUGamePlayerController::ADUGamePlayerController()
 {

@@ -2,7 +2,7 @@
 
 
 #include "DUTitlePlayerController.h"
-#include "WB_Main.h"
+#include "DefendersUnited/HUD/WB_Main.h"
 
 ADUTitlePlayerController::ADUTitlePlayerController()
 {

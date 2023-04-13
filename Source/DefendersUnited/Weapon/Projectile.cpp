@@ -6,7 +6,7 @@
 #include "Components/SphereComponent.h"
 #include "GameFramework/ProjectileMovementComponent.h"
 
-#include "AEnemy.h"
+#include "DefendersUnited/Etc/AEnemy.h"
 
 // Sets default values
 AProjectile::AProjectile()

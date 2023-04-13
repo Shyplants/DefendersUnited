@@ -7,11 +7,11 @@
 #include "Components/CapsuleComponent.h"
 #include "Components/InputComponent.h"
 
-#include "Projectile.h"
+#include "DefendersUnited/Weapon/Projectile.h"
 #include "Animation/AnimInstance.h"
 #include "Kismet/GameplayStatics.h"
 
-#include "DUClientGameMode.h"
+#include "DefendersUnited/GameMode/DUClientGameMode.h"
 
 // Sets default values
 ADUCharacter::ADUCharacter()

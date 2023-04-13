@@ -3,7 +3,7 @@
 
 #include "GamePlayWidget.h"
 #include "Components/Button.h"
-#include "DUGamePlayerController.h"
+#include "DefendersUnited/PlayerController/DUGamePlayerController.h"
 #include "Kismet/GameplayStatics.h"
 
 void UGamePlayWidget::NativeConstruct()
