@@ -65,5 +65,5 @@ void UDUCharacterSelectWidget::OnConfirmClicked()
 	if (CharacterName.Len() <= 0 || CharacterName.Len() > 10) return;
 
 	UGameplayStatics::GetPlayerController(GetWorld(), 0)->SetInputMode(FInputModeGameOnly());
-	UGameplayStatics::OpenLevel(GetWorld(), FName("Gameplay"));
+	UGameplayStatics::OpenLevel(GetWorld(), FName("Lobby"));
 }
