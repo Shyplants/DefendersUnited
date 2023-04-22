@@ -12,7 +12,7 @@ void ADULobbyGameMode::PostLogin(APlayerController* NewPlayer)
 		if (World)
 		{
 			bUseSeamlessTravel = true;
-			World->ServerTravel(FString("/Game/Maps/GamePlay?listen"));
+			World->ServerTravel(FString("/Game/Maps/Game?listen"));
 		}
 	}
 }

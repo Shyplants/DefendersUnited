@@ -6,10 +6,10 @@
 
 ADUGamePlayerController::ADUGamePlayerController()
 {
-	static ConstructorHelpers::FClassFinder<UGamePlayWidget> WB_MENU_C(TEXT("/Game/Title/WB/WB_Menu.WB_Menu_C"));
-	if (WB_MENU_C.Succeeded())
+	static ConstructorHelpers::FClassFinder<UGamePlayWidget> UI_MENU_C(TEXT("/Game/Blueprints/HUD/UI_Menu.UI_Menu_C"));
+	if (UI_MENU_C.Succeeded())
 	{
-		MenuWidgetClass = WB_MENU_C.Class;
+		MenuWidgetClass = UI_MENU_C.Class;
 	}
 
 	//ChangeInputMode(true);
