@@ -2,164 +2,247 @@
 
 
 #include "DUCharacter.h"
-
+#include "GameFramework/SpringArmComponent.h"
 #include "Camera/CameraComponent.h"
+#include "GameFramework/CharacterMovementComponent.h"
+#include "Components/WidgetComponent.h"
+#include "Net/UnrealNetwork.h"
+#include "DefendersUnited/Weapon/Weapon.h"
+#include "DefendersUnited/DUComponent/CombatComponent.h"
 #include "Components/CapsuleComponent.h"
-#include "Components/InputComponent.h"
-
-#include "DefendersUnited/Weapon/Projectile.h"
-#include "Animation/AnimInstance.h"
-#include "Kismet/GameplayStatics.h"
-
-#include "DefendersUnited/GameMode/DUClientGameMode.h"
+#include "Kismet/KismetMathLibrary.h"
 
 // Sets default values
 ADUCharacter::ADUCharacter()
 {
- 	// Set this character to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
 
-	GetCapsuleComponent()->InitCapsuleSize(40.0f, 95.0f);
+	CameraBoom = CreateDefaultSubobject<USpringArmComponent>(TEXT("CameraBoom"));
+	CameraBoom->SetupAttachment(GetMesh());
+	CameraBoom->TargetArmLength = 600.f;
+	CameraBoom->bUsePawnControlRotation = true;
 
-	TurnRate = 45.0f;
-	LookUpRate = 45.0f;
+	FollowCamera = CreateDefaultSubobject<UCameraComponent>(TEXT("FollowCamera"));
+	FollowCamera->SetupAttachment(CameraBoom, USpringArmComponent::SocketName);
+	FollowCamera->bUsePawnControlRotation = false;
 
-	FirstPersonCamera = CreateDefaultSubobject<UCameraComponent>(TEXT("First Person Camera"));
-	FirstPersonCamera->SetupAttachment(GetCapsuleComponent());
-	FirstPersonCamera->AddRelativeLocation(FVector(-39.65f, 1.75f, 64.0f));
-	FirstPersonCamera->bUsePawnControlRotation = true;
+	bUseControllerRotationYaw = false;
+	GetCharacterMovement()->bOrientRotationToMovement = true;
 
-	HandsMesh = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("Character Mesh"));
-	HandsMesh->SetOnlyOwnerSee(true);
-	HandsMesh->SetupAttachment(FirstPersonCamera);
-	HandsMesh->bCastDynamicShadow = false;
-	HandsMesh->CastShadow = false;
-	HandsMesh->AddRelativeRotation(FRotator(1.9f, -19.19f, 5.2f));
-	HandsMesh->AddRelativeLocation(FVector(-0.5f, -4.4f, -155.7f));
+	OverheadWidget = CreateDefaultSubobject<UWidgetComponent>(TEXT("OverheadWidget"));
+	OverheadWidget->SetupAttachment(RootComponent);
+	OverheadWidget->SetVisibility(false);
 
-	GunMesh = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("Gun"));
-	GunMesh->SetOnlyOwnerSee(true);
-	GunMesh->bCastDynamicShadow = false;
-	GunMesh->CastShadow = false;
+	Combat = CreateDefaultSubobject<UCombatComponent>(TEXT("CombatComponent"));
+	Combat->SetIsReplicated(true);
 
-	MuzzleLocation = CreateDefaultSubobject<USceneComponent>(TEXT("Muzzle Location"));
-	MuzzleLocation->SetupAttachment(GunMesh);
-	MuzzleLocation->SetRelativeLocation(FVector(0.2f, 48.4f, -10.6f));
-
-	GunOffset = FVector(100.0f, 0.0f, 10.0f);
+	GetCharacterMovement()->NavAgentProps.bCanCrouch = true;
+	GetCapsuleComponent()->SetCollisionResponseToChannel(ECollisionChannel::ECC_Camera, ECollisionResponse::ECR_Ignore);
+	GetMesh()->SetCollisionResponseToChannel(ECollisionChannel::ECC_Camera, ECollisionResponse::ECR_Ignore);
 }
 
-// Called when the game starts or when spawned
+void ADUCharacter::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
+{
+	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
+
+	DOREPLIFETIME_CONDITION(ADUCharacter, OverlappingWeapon, COND_OwnerOnly);
+}
+
+void ADUCharacter::PostInitializeComponents()
+{
+	Super::PostInitializeComponents();
+	if (Combat)
+	{
+		Combat->Character = this;
+	}
+}
+
 void ADUCharacter::BeginPlay()
 {
 	Super::BeginPlay();
 
-	GunMesh->AttachToComponent(HandsMesh, FAttachmentTransformRules::SnapToTargetNotIncludingScale, TEXT("GripPoint"));
-
-	World = GetWorld();
-
-	AnimInstance = HandsMesh->GetAnimInstance();
-	
 }
 
-// Called every frame
 void ADUCharacter::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
+	AimOffset(DeltaTime);
 }
 
-// Called to bind functionality to input
 void ADUCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 {
 	Super::SetupPlayerInputComponent(PlayerInputComponent);
 
 	PlayerInputComponent->BindAction("Jump", IE_Pressed, this, &ACharacter::Jump);
-	PlayerInputComponent->BindAction("Jump", IE_Released, this, &ACharacter::StopJumping);
-
-	PlayerInputComponent->BindAction("Fire", IE_Pressed, this, &ADUCharacter::OnFire);
-
 
 	PlayerInputComponent->BindAxis("MoveForward", this, &ADUCharacter::MoveForward);
 	PlayerInputComponent->BindAxis("MoveRight", this, &ADUCharacter::MoveRight);
+	PlayerInputComponent->BindAxis("Turn", this, &ADUCharacter::Turn);
+	PlayerInputComponent->BindAxis("LookUp", this, &ADUCharacter::LookUp);
 
-	PlayerInputComponent->BindAxis("Turn", this, &ADUCharacter::TurnAtRate);
-	PlayerInputComponent->BindAxis("LookUp", this, &ADUCharacter::LookAtRate);
+	PlayerInputComponent->BindAction("Equip", IE_Pressed, this, &ADUCharacter::EquipButtonPressed);
+	PlayerInputComponent->BindAction("Crouch", IE_Pressed, this, &ADUCharacter::CrouchButtonPressed);
+	PlayerInputComponent->BindAction("Aim", IE_Pressed, this, &ADUCharacter::AimButtonPressed);
+	PlayerInputComponent->BindAction("Aim", IE_Released, this, &ADUCharacter::AimButtonReleased);
 }
-
-void ADUCharacter::OnFire()
-{
-	if (World != NULL)
-	{
-		SpawnRotation = GetControlRotation();
-
-		SpawnLocation = ((MuzzleLocation != nullptr) ?
-			MuzzleLocation->GetComponentLocation() :
-			GetActorLocation() + SpawnRotation.RotateVector(GunOffset));
-
-		FActorSpawnParameters ActorSpawnParams;
-		ActorSpawnParams.SpawnCollisionHandlingOverride =
-			ESpawnActorCollisionHandlingMethod::AdjustIfPossibleButDontSpawnIfColliding;
-
-		World->SpawnActor<AProjectile>(Projectile,
-			SpawnLocation, SpawnRotation, ActorSpawnParams);
-
-		if (FireSound != NULL)
-		{
-			UGameplayStatics::PlaySoundAtLocation(this, FireSound, GetActorLocation());
-		}
-
-		if (FireAnimation != NULL && AnimInstance != NULL)
-		{
-			AnimInstance->Montage_Play(FireAnimation, 1.0f);
-		}
-	}
-}
-
-
 
 void ADUCharacter::MoveForward(float Value)
 {
-	if (Value != 0.0f)
+	if (Controller != nullptr && Value != 0.f)
 	{
-		AddMovementInput(GetActorForwardVector(), Value);
+		const FRotator YawRotation(0.f, Controller->GetControlRotation().Yaw, 0.f);
+		const FVector Direction(FRotationMatrix(YawRotation).GetUnitAxis(EAxis::X));
+		AddMovementInput(Direction, Value);
 	}
 }
 
 void ADUCharacter::MoveRight(float Value)
 {
-	if (Value != 0.0f)
+	if (Controller != nullptr && Value != 0.f)
 	{
-		AddMovementInput(GetActorRightVector(), Value);
+		const FRotator YawRotation(0.f, Controller->GetControlRotation().Yaw, 0.f);
+		const FVector Direction(FRotationMatrix(YawRotation).GetUnitAxis(EAxis::Y));
+		AddMovementInput(Direction, Value);
 	}
 }
 
-void ADUCharacter::TurnAtRate(float Rate)
+void ADUCharacter::Turn(float Value)
 {
-	AddControllerYawInput(Rate * TurnRate * GetWorld()->GetDeltaSeconds());
+	AddControllerYawInput(Value);
 }
 
-void ADUCharacter::LookAtRate(float Rate)
+void ADUCharacter::LookUp(float Value)
 {
-	AddControllerPitchInput(Rate * LookUpRate * GetWorld()->GetDeltaSeconds());
+	AddControllerPitchInput(Value);
 }
 
-void ADUCharacter::DealDamage(float DamageAmount)
+void ADUCharacter::EquipButtonPressed()
 {
-	Health -= DamageAmount;
-
-	if (Health <= 0.0f)
+	if (Combat)
 	{
-		// restart game
-		ADUClientGameMode* MyGameMode =
-			Cast<ADUClientGameMode>(UGameplayStatics::GetGameMode(GetWorld()));
-
-		if (MyGameMode)
+		if (HasAuthority())
 		{
-			MyGameMode->RestartGamePlay(false);
+			Combat->EquipWeapon(OverlappingWeapon);
 		}
-
-		Destroy();
+		else
+		{
+			ServerEquipButtonPressed();
+		}
 	}
 }
 
+void ADUCharacter::ServerEquipButtonPressed_Implementation()
+{
+	if (Combat)
+	{
+		Combat->EquipWeapon(OverlappingWeapon);
+	}
+}
+
+void ADUCharacter::AimOffset(float DeltaTime)
+{
+	if (Combat && Combat->EquippedWeapon == nullptr) return;
+
+	FVector Velocity = GetVelocity();
+	Velocity.Z = 0.f;
+	float Speed = Velocity.Size();
+	bool bIsInAir = GetCharacterMovement()->IsFalling();
+
+	if (Speed == 0.f && !bIsInAir) // standing still, not jumping
+	{
+		FRotator CurrentAimRotation = FRotator(0.f, GetBaseAimRotation().Yaw, 0.f);
+		FRotator DeltaAimRotation = UKismetMathLibrary::NormalizedDeltaRotator(CurrentAimRotation, StartingAimRotation);
+		AO_Yaw = DeltaAimRotation.Yaw;
+		bUseControllerRotationYaw = false;
+	}
+	if (Speed > 0.f || bIsInAir) // running, or jumping
+	{
+		StartingAimRotation = FRotator(0.f, GetBaseAimRotation().Yaw, 0.f);
+		AO_Yaw = 0.f;
+		bUseControllerRotationYaw = true;
+	}
+
+	AO_Pitch = GetBaseAimRotation().Pitch;
+	if (AO_Pitch > 90.f && !IsLocallyControlled())
+	{
+		// map pitch from [270, 360) to [-90, 0)
+		FVector2D InRange(270.f, 360.f);
+		FVector2D OutRange(-90.f, 0.f);
+		AO_Pitch = FMath::GetMappedRangeValueClamped(InRange, OutRange, AO_Pitch);
+	}
+}
+
+void ADUCharacter::SetOverlappingWeapon(AWeapon* Weapon)
+{
+	if (OverlappingWeapon)
+	{
+		OverlappingWeapon->ShowPickupWidget(false);
+	}
+	OverlappingWeapon = Weapon;
+	if (IsLocallyControlled()) // 서버일때
+	{
+		if (OverlappingWeapon)
+		{
+			OverlappingWeapon->ShowPickupWidget(true);
+		}
+	}
+}
+
+void ADUCharacter::OnRep_OverlappingWeapon(AWeapon* LastWeapon)
+{
+	if (OverlappingWeapon)
+	{
+		OverlappingWeapon->ShowPickupWidget(true);
+	}
+
+	if (LastWeapon)
+	{
+		LastWeapon->ShowPickupWidget(false);
+	}
+}
+
+void ADUCharacter::CrouchButtonPressed()
+{
+	if (bIsCrouched)
+	{
+		UnCrouch();
+	}
+	else
+	{
+		Crouch();
+	}
+
+}
+
+void ADUCharacter::AimButtonPressed()
+{
+	if (Combat)
+	{
+		Combat->SetAiming(true);
+	}
+}
+
+void ADUCharacter::AimButtonReleased()
+{
+	if (Combat)
+	{
+		Combat->SetAiming(false);
+	}
+}
+
+bool ADUCharacter::IsWeaponEquipped()
+{
+	return (Combat && Combat->EquippedWeapon);
+}
+
+bool ADUCharacter::IsAiming()
+{
+	return (Combat && Combat->bAiming);
+}
+
+AWeapon* ADUCharacter::GetEquippedWeapon()
+{
+	if (Combat == nullptr) return nullptr;
+	return Combat->EquippedWeapon;
+}
