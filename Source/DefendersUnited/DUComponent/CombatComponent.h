@@ -2,8 +2,11 @@
 
 #include "CoreMinimal.h"
 #include "Components/ActorComponent.h"
+#include "DefendersUnited/HUD/DUHUD.h"
 #include "CombatComponent.generated.h"
 
+
+#define TRACE_LENGTH 80000.f;
 
 UCLASS(ClassGroup = (Custom), meta = (BlueprintSpawnableComponent))
 class DEFENDERSUNITED_API UCombatComponent : public UActorComponent
@@ -27,8 +30,22 @@ protected:
 	UFUNCTION()
 	void OnRep_EquippedWeapon();
 
+	void FireButtonPressed(bool bPressed);
+
+	UFUNCTION(Server, Reliable)
+	void ServerFire(const FVector_NetQuantize& TraceHitTarget);
+
+	UFUNCTION(NetMulticast, Reliable)
+	void MulticastFire(const FVector_NetQuantize& TraceHitTarget);
+
+	void TraceUnderCrosshairs(FHitResult& TraceHitResult);
+
+	void SetHUDCrosshairs(float DeltaTime);
+
 private:
 	class ADUCharacter* Character;
+	class ADUPlayerController* Controller;
+	class ADUHUD* HUD;
 
 	UPROPERTY(ReplicatedUsing = OnRep_EquippedWeapon)
 	AWeapon* EquippedWeapon;
@@ -41,6 +58,34 @@ private:
 
 	UPROPERTY(EditAnywhere)
 	float AimWalkSpeed;
+
+	bool bFireButtonPressed;
+
+	// HUD and Crosshairs
+
+	float CrosshairVelocityFactor;
+	float CrosshairInAirFactor;
+	float CrosshairAimFactor;
+	float CrosshairShootingFactor;
+
+	FHUDPackage HUDPackage;
+
+	FVector HitTarget;
+
+	// Aiming and FOV
+
+	// Filed of view when not aiming; set to the camera's base FOV in BeginPlay
+	float DefaultFOV;
+
+	UPROPERTY(EditAnywhere, Category = Combat)
+	float ZoomedFOV = 30.f;
+
+	float CurrentFOV;
+
+	UPROPERTY(EditAnywhere, Category = Combat)
+	float ZoomInterpSpeed = 20.f;
+
+	void InterpFOV(float DeltaTime);
 
 public:
 
