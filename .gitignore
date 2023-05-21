@@ -12,5 +12,5 @@ Saved
 *.sln
 *.suo
 *.xcodeproj
-*.xcworkspace
+*.xcworkspaceContent*
 Build.zip
