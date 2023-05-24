@@ -6,6 +6,8 @@
 #include "GameFramework/Character.h"
 #include "DefendersUnited/DUTypes/TurningInPlace.h"
 #include "DefendersUnited/Interfaces/InteractWithCrosshairsInterface.h"
+#include "Components/TimelineComponent.h"
+#include "DefendersUnited/DUTypes/CombatState.h"
 #include "DUCharacter.generated.h"
 
 UCLASS()
@@ -20,11 +22,19 @@ public:
 	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
 	virtual void PostInitializeComponents() override;
 	void PlayFireMontage(bool bAiming);
+	void PlayReloadMontage();
+	void PlayElimMontage();
+	virtual void OnRep_ReplicatedMovement() override;
+	void Elim();
 
 	UFUNCTION(NetMulticast, Unreliable)
 	void MulticastHit();
 
-	virtual void OnRep_ReplicatedMovement() override;
+	UPROPERTY(Replicated)
+	bool bDisableGameplay = false;
+
+	UFUNCTION(BlueprintImplementableEvent)
+	void ShowSniperScopeWidget(bool bShowScope);
 
 protected:
 	virtual void BeginPlay() override;
@@ -76,6 +86,9 @@ private:
 
 	UPROPERTY(EditAnywhere, Category = Combat)
 	class UAnimMontage* FireWeaponMontage;
+
+	UPROPERTY(EditAnywhere, Category = Combat)
+	UAnimMontage* ReloadMontage;
 
 	UPROPERTY(EditAnywhere, Category = Combat)
 	UAnimMontage* HitReactMontage;

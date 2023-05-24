@@ -3,10 +3,9 @@
 #include "CoreMinimal.h"
 #include "Components/ActorComponent.h"
 #include "DefendersUnited/HUD/DUHUD.h"
+#include "DefendersUnited/Weapon/WeaponTypes.h"
+#include "DefendersUnited/DUTypes/CombatState.h"
 #include "CombatComponent.generated.h"
-
-
-#define TRACE_LENGTH 80000.f;
 
 UCLASS(ClassGroup = (Custom), meta = (BlueprintSpawnableComponent))
 class DEFENDERSUNITED_API UCombatComponent : public UActorComponent
@@ -20,6 +19,8 @@ public:
 	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
 
 	void EquipWeapon(class AWeapon* WeaponToEquip);
+
+	void FireButtonPressed(bool bPressed);
 protected:
 	virtual void BeginPlay() override;
 	void SetAiming(bool bIsAiming);
@@ -30,7 +31,6 @@ protected:
 	UFUNCTION()
 	void OnRep_EquippedWeapon();
 
-	void FireButtonPressed(bool bPressed);
 
 	void Fire();
 
@@ -45,8 +45,11 @@ protected:
 	void SetHUDCrosshairs(float DeltaTime);
 
 private:
+	UPROPERTY()
 	class ADUCharacter* Character;
+	UPROPERTY()
 	class ADUPlayerController* Controller;
+	UPROPERTY()
 	class ADUHUD* HUD;
 
 	UPROPERTY(ReplicatedUsing = OnRep_EquippedWeapon)
@@ -96,6 +99,37 @@ private:
 
 	void StartFireTimer();
 	void FireTimerFinished();
+
+	bool CanFire();
+
+	// Carried ammo for the currently-equipped weapon
+	UPROPERTY(ReplicatedUsing = OnRep_CarriedAmmo)
+	int32 CarriedAmmo;
+
+	UFUNCTION()
+	void OnRep_CarriedAmmo();
+
+	TMap<EWeaponType, int32> CarriedAmmoMap;
+
+	UPROPERTY(EditAnywhere)
+	int32 StartingARAmmo = 30;
+
+	UPROPERTY(EditAnywhere)
+	int32 StartingRocketAmmo = 0;
+
+	UPROPERTY(EditAnywhere)
+	int32 StartingPistolAmmo = 0;
+
+	UPROPERTY(EditAnywhere)
+	int32 StartingSMGAmmo = 0;
+
+	UPROPERTY(EditAnywhere)
+	int32 StartingShotgunAmmo = 0;
+
+	UPROPERTY(EditAnywhere)
+	int32 StartingSniperAmmo = 0;
+
+	void InitializeCarriedAmmo();
 
 public:
 
