@@ -24,6 +24,8 @@ AProjectile::AProjectile()
 
 	ProjectileMovementComponent = CreateDefaultSubobject<UProjectileMovementComponent>(TEXT("ProjectileMovementComponent"));
 	ProjectileMovementComponent->bRotationFollowsVelocity = true;
+
+	// UE_LOG(LogTemp, Warning, TEXT("projectile generated"));
 }
 
 void AProjectile::BeginPlay()
@@ -51,6 +53,7 @@ void AProjectile::BeginPlay()
 
 void AProjectile::OnHit(UPrimitiveComponent* HitComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit)
 {
+	// UE_LOG(LogTemp, Warning, TEXT("projectile onhit"));
 	Destroy();
 }
 
@@ -64,12 +67,15 @@ void AProjectile::Destroyed()
 {
 	Super::Destroyed();
 
+	// UE_LOG(LogTemp, Warning, TEXT("projectile destroyed"));
 	if (ImpactParticles)
 	{
+		// UE_LOG(LogTemp, Warning, TEXT("Impact Particle"));	
 		UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), ImpactParticles, GetActorTransform());
 	}
 	if (ImpactSound)
 	{
+		// UE_LOG(LogTemp, Warning, TEXT("Impact Sound"));
 		UGameplayStatics::PlaySoundAtLocation(this, ImpactSound, GetActorLocation());
 	}
 }
