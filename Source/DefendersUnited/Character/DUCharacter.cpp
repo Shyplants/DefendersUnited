@@ -267,6 +267,12 @@ void ADUCharacter::SetOverlappingWeapon(AWeapon* Weapon)
 	}
 }
 
+FVector ADUCharacter::GetHitTarget() const
+{
+	if (Combat == nullptr) return FVector();
+	return Combat->HitTarget;
+}
+
 void ADUCharacter::OnRep_OverlappingWeapon(AWeapon* LastWeapon)
 {
 	if (OverlappingWeapon)
