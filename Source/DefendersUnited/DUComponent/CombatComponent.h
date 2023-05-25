@@ -2,6 +2,7 @@
 
 #include "CoreMinimal.h"
 #include "Components/ActorComponent.h"
+#include "DefendersUnited/HUD/DUHUD.h"
 #include "CombatComponent.generated.h"
 
 #define TRACE_LENGTH 80000
@@ -71,7 +72,7 @@ private:
 
 	FVector HitTarget;
 
-
+	FHUDPackage HUDPackage;
 	/*
 	* Aiming and FOV
 	*/

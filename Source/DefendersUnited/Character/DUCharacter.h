@@ -5,10 +5,11 @@
 #include "CoreMinimal.h"
 #include "GameFramework/Character.h"
 #include "DefendersUnited/DUTypes/TurningInPlace.h"
+#include "DefendersUnited/Interfaces/InteractWithCrosshairsInterface.h"
 #include "DUCharacter.generated.h"
 
 UCLASS()
-class DEFENDERSUNITED_API ADUCharacter : public ACharacter
+class DEFENDERSUNITED_API ADUCharacter : public ACharacter, public IInteractWithCrosshairsInterface
 {
 	GENERATED_BODY()
 
