@@ -35,6 +35,7 @@ void UDUAnimInstance::NativeUpdateAnimation(float DeltaTime)
 	bIsCrouched = Character->bIsCrouched;
 	bAiming = Character->IsAiming();
 	TurningInPlace = Character->GetTurningInPlace();
+	bRotateRootBone = Character->ShouldRotateRootBone();
 
 	// Offset Yaw for Strafing
 	FRotator AimRotation = Character->GetBaseAimRotation();
