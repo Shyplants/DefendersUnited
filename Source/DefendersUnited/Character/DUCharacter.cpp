@@ -55,6 +55,7 @@ void ADUCharacter::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLife
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
 
 	DOREPLIFETIME_CONDITION(ADUCharacter, OverlappingWeapon, COND_OwnerOnly);
+	DOREPLIFETIME(ADUCharacter, Health);
 }
 
 void ADUCharacter::PostInitializeComponents()
@@ -361,6 +362,11 @@ void ADUCharacter::HideCameraIfCharacterClose()
 void ADUCharacter::MulticastHit_Implementation()
 {
 	PlayHitReactMontage();
+}
+
+void ADUCharacter::OnRep_Health()
+{
+
 }
 
 void ADUCharacter::SetOverlappingWeapon(AWeapon* Weapon)
