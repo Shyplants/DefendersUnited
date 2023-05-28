@@ -15,11 +15,13 @@
 #include "DefendersUnited/DefendersUnited.h"
 #include "DefendersUnited/PlayerController/DUPlayerController.h"
 #include "DefendersUnited/GameMode/DUGameMode.h"
+#include "TimerManager.h"
 
 // Sets default values
 ADUCharacter::ADUCharacter()
 {
 	PrimaryActorTick.bCanEverTick = true;
+	SpawnCollisionHandlingMethod = ESpawnActorCollisionHandlingMethod::AdjustIfPossibleButAlwaysSpawn;
 
 	CameraBoom = CreateDefaultSubobject<USpringArmComponent>(TEXT("CameraBoom"));
 	CameraBoom->SetupAttachment(GetMesh());
@@ -76,10 +78,31 @@ void ADUCharacter::OnRep_ReplicatedMovement()
 	TimeSinceLastMovementReplication = 0.f;
 }
 
-void ADUCharacter::Elim_Implementation()
+void ADUCharacter::Elim()
 {
+	MulticastElim();
+	GetWorldTimerManager().SetTimer(
+		ElimTimer,
+		this,
+		&ADUCharacter::ElimTimerFinished,
+		ElimDelay
+	);
+}
+
+void ADUCharacter::MulticastElim_Implementation()
+{
+
 	bElimmed = true;
 	PlayElimMontage();
+}
+
+void ADUCharacter::ElimTimerFinished()
+{
+	ADUGameMode* DUGameMode = GetWorld()->GetAuthGameMode<ADUGameMode>();
+	if (DUGameMode)
+	{
+		DUGameMode->RequestRespawn(this, Controller);
+	}
 }
 
 void ADUCharacter::BeginPlay()
