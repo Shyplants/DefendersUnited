@@ -76,9 +76,10 @@ void ADUCharacter::OnRep_ReplicatedMovement()
 	TimeSinceLastMovementReplication = 0.f;
 }
 
-void ADUCharacter::Elim()
+void ADUCharacter::Elim_Implementation()
 {
-	
+	bElimmed = true;
+	PlayElimMontage();
 }
 
 void ADUCharacter::BeginPlay()
@@ -148,9 +149,19 @@ void ADUCharacter::PlayFireMontage(bool bAiming)
 	}
 }
 
+void ADUCharacter::PlayElimMontage()
+{
+	UAnimInstance* AnimInstance = GetMesh()->GetAnimInstance();
+	if (AnimInstance && ElimMontage)
+	{
+		AnimInstance->Montage_Play(ElimMontage);
+	}
+}
+
 void ADUCharacter::PlayHitReactMontage()
 {
 	// if (Combat == nullptr || Combat->EquippedWeapon == nullptr) return;
+	if (Health == 0.0f) return;
 
 	UAnimInstance* AnimInstance = GetMesh()->GetAnimInstance();
 	if (AnimInstance && HitReactMontage)
