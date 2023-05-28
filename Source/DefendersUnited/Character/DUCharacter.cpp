@@ -14,6 +14,7 @@
 #include "DUAnimInstance.h"
 #include "DefendersUnited/DefendersUnited.h"
 #include "DefendersUnited/PlayerController/DUPlayerController.h"
+#include "DefendersUnited/GameMode/DUGameMode.h"
 
 // Sets default values
 ADUCharacter::ADUCharacter()
@@ -73,6 +74,11 @@ void ADUCharacter::OnRep_ReplicatedMovement()
 	Super::OnRep_ReplicatedMovement();
 	SimProxiesTurn();
 	TimeSinceLastMovementReplication = 0.f;
+}
+
+void ADUCharacter::Elim()
+{
+	
 }
 
 void ADUCharacter::BeginPlay()
@@ -161,6 +167,16 @@ void ADUCharacter::ReceiveDamage(AActor* DamageActor, float Damage, const UDamag
 	UpdateHUDHealth();
 	PlayHitReactMontage();
 
+	if (Health == 0.0f)
+	{
+		ADUGameMode* DUGameMode = GetWorld()->GetAuthGameMode<ADUGameMode>();
+		if (DUGameMode)
+		{
+			DUPlayerController = DUPlayerController == nullptr ? Cast<ADUPlayerController>(Controller) : DUPlayerController;
+			ADUPlayerController* AttackerController = Cast<ADUPlayerController>(InstigatorController);
+			DUGameMode->PlayerEliminated(this, DUPlayerController, AttackerController);
+		}
+	}
 }
 
 void ADUCharacter::MoveForward(float Value)
