@@ -79,11 +79,12 @@ void ADUCharacter::BeginPlay()
 {
 	Super::BeginPlay();
 
-	DUPlayerController = Cast<ADUPlayerController>(Controller);
-	if (DUPlayerController)
+	UpdateHUDHealth();
+	if (HasAuthority())
 	{
-		DUPlayerController->SetHUDHealth(Health, MaxHealth);
+		OnTakeAnyDamage.AddDynamic(this, &ADUCharacter::ReceiveDamage);
 	}
+
 }
 
 void ADUCharacter::Tick(float DeltaTime)
@@ -152,6 +153,14 @@ void ADUCharacter::PlayHitReactMontage()
 		FName SectionName = FName("FromFront");
 		AnimInstance->Montage_JumpToSection(SectionName);
 	}
+}
+
+void ADUCharacter::ReceiveDamage(AActor* DamageActor, float Damage, const UDamageType* DamageType, AController* InstigatorController, AActor* DamageCauser)
+{
+	Health = FMath::Clamp(Health - Damage, 0.f, MaxHealth);
+	UpdateHUDHealth();
+	PlayHitReactMontage();
+
 }
 
 void ADUCharacter::MoveForward(float Value)
@@ -365,14 +374,19 @@ void ADUCharacter::HideCameraIfCharacterClose()
 	}
 }
 
-void ADUCharacter::MulticastHit_Implementation()
+void ADUCharacter::OnRep_Health()
 {
+	UpdateHUDHealth();
 	PlayHitReactMontage();
 }
 
-void ADUCharacter::OnRep_Health()
+void ADUCharacter::UpdateHUDHealth()
 {
-
+	DUPlayerController = DUPlayerController == nullptr ? Cast<ADUPlayerController>(Controller) : DUPlayerController;
+	if (DUPlayerController)
+	{
+		DUPlayerController->SetHUDHealth(Health, MaxHealth);
+	}
 }
 
 void ADUCharacter::SetOverlappingWeapon(AWeapon* Weapon)

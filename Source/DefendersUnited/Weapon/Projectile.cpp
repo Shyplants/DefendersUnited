@@ -57,13 +57,6 @@ void AProjectile::BeginPlay()
 
 void AProjectile::OnHit(UPrimitiveComponent* HitComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit)
 {
-	ADUCharacter* Character = Cast<ADUCharacter>(OtherActor);
-	if (Character)
-	{
-		Character->MulticastHit();
-	}
-
-
 	// UE_LOG(LogTemp, Warning, TEXT("projectile onhit"));
 	Destroy();
 }
