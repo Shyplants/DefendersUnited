@@ -13,6 +13,7 @@
 #include "Kismet/KismetMathLibrary.h"
 #include "DUAnimInstance.h"
 #include "DefendersUnited/DefendersUnited.h"
+#include "DefendersUnited/PlayerController/DUPlayerController.h"
 
 // Sets default values
 ADUCharacter::ADUCharacter()
@@ -78,6 +79,11 @@ void ADUCharacter::BeginPlay()
 {
 	Super::BeginPlay();
 
+	DUPlayerController = Cast<ADUPlayerController>(Controller);
+	if (DUPlayerController)
+	{
+		DUPlayerController->SetHUDHealth(Health, MaxHealth);
+	}
 }
 
 void ADUCharacter::Tick(float DeltaTime)

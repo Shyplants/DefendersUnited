@@ -107,6 +107,8 @@ private:
 	UFUNCTION()
 	void OnRep_Health();
 
+	class ADUPlayerController* DUPlayerController;
+
 public:
 	void SetOverlappingWeapon(AWeapon* Weapon);
 	bool IsWeaponEquipped();
