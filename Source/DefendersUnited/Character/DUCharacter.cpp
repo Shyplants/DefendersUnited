@@ -82,6 +82,10 @@ void ADUCharacter::OnRep_ReplicatedMovement()
 
 void ADUCharacter::Elim()
 {
+	if (Combat&& Combat->EquippedWeapon)
+	{
+		Combat->EquippedWeapon->Dropped();
+	}
 	MulticastElim();
 	GetWorldTimerManager().SetTimer(
 		ElimTimer,
@@ -97,6 +101,7 @@ void ADUCharacter::MulticastElim_Implementation()
 	bElimmed = true;
 	PlayElimMontage();
 
+	// Start dissolve effect
 	if (DissolveMaterialInstances.Num() > 0)
 	{
 		int index = 0;
@@ -112,6 +117,18 @@ void ADUCharacter::MulticastElim_Implementation()
 		}		
 	}
 	StartDissolve();
+
+	// Disable character movement
+	GetCharacterMovement()->DisableMovement();
+	GetCharacterMovement()->StopMovementImmediately();
+	if (DUPlayerController)
+	{
+		DisableInput(DUPlayerController);
+	}
+
+	// Disable collision
+	GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+	GetMesh()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 }
 
 void ADUCharacter::ElimTimerFinished()
@@ -466,12 +483,6 @@ void ADUCharacter::UpdateDissolveMaterial(float DissolveValue)
 			DynamicDissolveMaterialInstance->SetScalarParameterValue(TEXT("Dissolve"), DissolveValue);
 		}
 	}
-	/*
-	if (DynamicDissolveMaterialInstance)
-	{
-		DynamicDissolveMaterialInstance->SetScalarParameterValue(TEXT("Dissolve"), DissolveValue);
-	}
-	*/
 }
 
 void ADUCharacter::StartDissolve()
