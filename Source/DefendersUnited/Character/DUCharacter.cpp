@@ -52,6 +52,8 @@ ADUCharacter::ADUCharacter()
 	TurningInPlace = ETurningInPlace::ETIP_NotTurning;
 	NetUpdateFrequency = 66.f;
 	MinNetUpdateFrequency = 33.f;
+
+	DissolveTimeline = CreateDefaultSubobject<UTimelineComponent>(TEXT("DissolveTimelineComponent"));
 }
 
 void ADUCharacter::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
@@ -94,6 +96,22 @@ void ADUCharacter::MulticastElim_Implementation()
 
 	bElimmed = true;
 	PlayElimMontage();
+
+	if (DissolveMaterialInstances.Num() > 0)
+	{
+		int index = 0;
+		for (UMaterialInstance* DissolveMaterialInstance : DissolveMaterialInstances)
+		{
+			UMaterialInstanceDynamic* DynamicDissolveMaterialInstance = UMaterialInstanceDynamic::Create(DissolveMaterialInstance, this);
+			GetMesh()->SetMaterial(index, DynamicDissolveMaterialInstance);
+			DynamicDissolveMaterialInstance->SetScalarParameterValue(TEXT("Dissolve"), 0.55f);
+			DynamicDissolveMaterialInstance->SetScalarParameterValue(TEXT("Glow"), 200.f);
+			DynamicDissolveMaterialInstances.Add(DynamicDissolveMaterialInstance);
+
+			index++;
+		}		
+	}
+	StartDissolve();
 }
 
 void ADUCharacter::ElimTimerFinished()
@@ -436,6 +454,33 @@ void ADUCharacter::UpdateHUDHealth()
 	if (DUPlayerController)
 	{
 		DUPlayerController->SetHUDHealth(Health, MaxHealth);
+	}
+}
+
+void ADUCharacter::UpdateDissolveMaterial(float DissolveValue)
+{
+	if (DynamicDissolveMaterialInstances.Num() > 0)
+	{
+		for (UMaterialInstanceDynamic* DynamicDissolveMaterialInstance : DynamicDissolveMaterialInstances)
+		{
+			DynamicDissolveMaterialInstance->SetScalarParameterValue(TEXT("Dissolve"), DissolveValue);
+		}
+	}
+	/*
+	if (DynamicDissolveMaterialInstance)
+	{
+		DynamicDissolveMaterialInstance->SetScalarParameterValue(TEXT("Dissolve"), DissolveValue);
+	}
+	*/
+}
+
+void ADUCharacter::StartDissolve()
+{
+	DissolveTrack.BindDynamic(this, &ADUCharacter::UpdateDissolveMaterial);
+	if (DissolveCurve)
+	{
+		DissolveTimeline->AddInterpFloat(DissolveCurve, DissolveTrack);
+		DissolveTimeline->Play();
 	}
 }
 
