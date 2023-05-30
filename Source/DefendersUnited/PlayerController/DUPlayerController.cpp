@@ -42,3 +42,17 @@ void ADUPlayerController::SetHUDHealth(float Health, float MaxHealth)
 		DUHUD->CharacterOverlay->HealthText->SetText(FText::FromString(HealthText));
 	}
 }
+
+void ADUPlayerController::SetHUDScore(float Score)
+{
+	DUHUD = DUHUD == nullptr ? Cast<ADUHUD>(GetHUD()) : DUHUD;
+
+	bool bHUDValid = DUHUD &&
+		DUHUD->CharacterOverlay &&
+		DUHUD->CharacterOverlay->ScoreAmount;
+	if (bHUDValid)
+	{
+		FString ScoreText = FString::Printf(TEXT("%d"), FMath::FloorToInt(Score));
+		DUHUD->CharacterOverlay->ScoreAmount->SetText(FText::FromString(ScoreText));
+	}
+}

@@ -19,6 +19,7 @@
 #include "Kismet/GameplayStatics.h"
 #include "Sound/SoundCue.h"
 #include "Particles/ParticleSystemComponent.h"
+#include "DefendersUnited/PlayerState/DUPlayerState.h"
 
 // Sets default values
 ADUCharacter::ADUCharacter()
@@ -204,6 +205,7 @@ void ADUCharacter::Tick(float DeltaTime)
 
 	
 	HideCameraIfCharacterClose();
+	PollInit();
 }
 
 void ADUCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
@@ -503,6 +505,18 @@ void ADUCharacter::UpdateHUDHealth()
 	if (DUPlayerController)
 	{
 		DUPlayerController->SetHUDHealth(Health, MaxHealth);
+	}
+}
+
+void ADUCharacter::PollInit()
+{
+	if (DUPlayerState == nullptr)
+	{
+		DUPlayerState = GetPlayerState<ADUPlayerState>();
+		if (DUPlayerState)
+		{
+			DUPlayerState->AddToScore(0.f);
+		}
 	}
 }
 
