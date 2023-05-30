@@ -6,12 +6,24 @@
 #include "DefendersUnited/HUD/CharacterOverlay.h"
 #include "Components/ProgressBar.h"
 #include "Components/TextBlock.h"
+#include "DefendersUnited/Character/DUCharacter.h"
 
 void ADUPlayerController::BeginPlay()
 {
 	Super::BeginPlay();
 
 	DUHUD = Cast<ADUHUD>(GetHUD());
+}
+
+void ADUPlayerController::OnPossess(APawn* InPawn)
+{
+	Super::OnPossess(InPawn);
+
+	ADUCharacter* DUCharacter = Cast<ADUCharacter>(InPawn);
+	if (DUCharacter)
+	{
+		SetHUDHealth(DUCharacter->GetHealth(), DUCharacter->GetMaxHealth());
+	}
 }
 
 void ADUPlayerController::SetHUDHealth(float Health, float MaxHealth)

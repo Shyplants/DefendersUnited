@@ -14,3 +14,6 @@ Saved
 *.xcodeproj
 *.xcworkspaceContent*
 Build.zip
+Content/Assets/ParagonDekker/FX/Textures/Hero_Specific/T_Dekker_UV2_RGB.uasset
+Content/Assets/ParagonDekker/FX/Textures/Hero_Specific/T_Dekker_Weapon_M.uasset
+Content/Assets/ParagonDekker/FX/Textures/Hero_Specific/T_Dekker_Weapon_N.uasset
