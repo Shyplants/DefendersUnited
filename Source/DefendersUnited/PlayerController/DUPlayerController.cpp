@@ -15,6 +15,13 @@ void ADUPlayerController::BeginPlay()
 	DUHUD = Cast<ADUHUD>(GetHUD());
 }
 
+void ADUPlayerController::Tick(float DeltaTime)
+{
+	Super::Tick(DeltaTime);
+
+	PollInit();
+}
+
 void ADUPlayerController::OnPossess(APawn* InPawn)
 {
 	Super::OnPossess(InPawn);
@@ -54,5 +61,37 @@ void ADUPlayerController::SetHUDScore(float Score)
 	{
 		FString ScoreText = FString::Printf(TEXT("%d"), FMath::FloorToInt(Score));
 		DUHUD->CharacterOverlay->ScoreAmount->SetText(FText::FromString(ScoreText));
+	}
+}
+
+void ADUPlayerController::SetHUDDefeats(int32 Defeats)
+{
+	DUHUD = DUHUD == nullptr ? Cast<ADUHUD>(GetHUD()) : DUHUD;
+
+	bool bHUDValid = DUHUD &&
+		DUHUD->CharacterOverlay &&
+		DUHUD->CharacterOverlay->DefeatsAmount;
+	if (bHUDValid)
+	{
+		FString DefeatsText = FString::Printf(TEXT("%d"), Defeats);
+		DUHUD->CharacterOverlay->DefeatsAmount->SetText(FText::FromString(DefeatsText));
+	}
+}
+
+void ADUPlayerController::PollInit()
+{
+	if (CharacterOverlay == nullptr)
+	{
+		if (DUHUD && DUHUD->CharacterOverlay)
+		{
+			CharacterOverlay = DUHUD->CharacterOverlay;
+			if (CharacterOverlay)
+			{
+				if (bInitializeHealth) SetHUDHealth(HUDHealth, HUDMaxHealth);
+				if (bInitializeScore) SetHUDScore(HUDScore);
+				if (bInitializeDefeats) SetHUDDefeats(HUDDefeats);
+			}
+		}
+
 	}
 }

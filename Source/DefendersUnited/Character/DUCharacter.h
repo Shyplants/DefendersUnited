@@ -118,6 +118,7 @@ private:
 	UFUNCTION()
 	void OnRep_Health();
 
+	UPROPERTY()
 	class ADUPlayerController* DUPlayerController;
 
 	bool bElimmed = false;
@@ -165,6 +166,7 @@ private:
 	UPROPERTY(EditAnywhere)
 	class USoundCue* ElimBotSound;
 
+	UPROPERTY()
 	class ADUPlayerState* DUPlayerState;
 
 public:

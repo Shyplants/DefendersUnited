@@ -516,6 +516,7 @@ void ADUCharacter::PollInit()
 		if (DUPlayerState)
 		{
 			DUPlayerState->AddToScore(0.f);
+			DUPlayerState->AddToDefeats(0);
 		}
 	}
 }
