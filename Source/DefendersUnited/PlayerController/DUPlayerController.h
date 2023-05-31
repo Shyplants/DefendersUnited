@@ -17,16 +17,21 @@ public:
 	void SetHUDHealth(float Health, float MaxHealth);
 	void SetHUDScore(float Score);
 	void SetHUDDefeats(int32 Defeats);
+	void SetHUDMatchCountdown(float CountdownTime);
 	virtual void OnPossess(APawn* InPawn) override;
 	virtual void Tick(float DeltaTime) override;
 
 protected:
 	virtual void BeginPlay() override;
+	void SetHUDTime();
 	void PollInit();
 
 private:
 	UPROPERTY()
 	class ADUHUD* DUHUD;
+
+	float MatchTime = 120.f;
+	uint32 CountdownInt = 0;
 
 	UPROPERTY()
 	class UCharacterOverlay* CharacterOverlay;

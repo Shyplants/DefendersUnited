@@ -19,6 +19,7 @@ void ADUPlayerController::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
+	SetHUDTime();
 	PollInit();
 }
 
@@ -78,6 +79,34 @@ void ADUPlayerController::SetHUDDefeats(int32 Defeats)
 	}
 }
 
+void ADUPlayerController::SetHUDMatchCountdown(float CountdownTime)
+{
+	DUHUD = DUHUD == nullptr ? Cast<ADUHUD>(GetHUD()) : DUHUD;
+
+	bool bHUDValid = DUHUD &&
+		DUHUD->CharacterOverlay &&
+		DUHUD->CharacterOverlay->MatchCountdownText;
+	if (bHUDValid)
+	{
+		int32 Minutes = FMath::FloorToInt(CountdownTime / 60.f);
+		int32 Seconds = CountdownTime - Minutes * 60;
+
+		FString CountdownText = FString::Printf(TEXT("%02d:%02d"), Minutes, Seconds);
+		DUHUD->CharacterOverlay->MatchCountdownText->SetText(FText::FromString(CountdownText));
+	}
+}
+
+void ADUPlayerController::SetHUDTime()
+{
+	uint32 SecondsLeft = FMath::CeilToInt(MatchTime - GetWorld()->GetTimeSeconds());
+	if (CountdownInt != SecondsLeft)
+	{
+		SetHUDMatchCountdown(MatchTime - GetWorld()->GetTimeSeconds());
+	}
+
+	CountdownInt = SecondsLeft;
+}
+
 void ADUPlayerController::PollInit()
 {
 	if (CharacterOverlay == nullptr)
@@ -95,3 +124,4 @@ void ADUPlayerController::PollInit()
 
 	}
 }
+
