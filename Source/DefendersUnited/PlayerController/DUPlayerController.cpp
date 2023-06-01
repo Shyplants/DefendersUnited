@@ -7,6 +7,9 @@
 #include "Components/ProgressBar.h"
 #include "Components/TextBlock.h"
 #include "DefendersUnited/Character/DUCharacter.h"
+#include "Net/UnrealNetwork.h"
+#include "DefendersUnited/GameMode/DUGameMode.h"
+#include "DefendersUnited/PlayerState/DUPlayerState.h"
 
 void ADUPlayerController::BeginPlay()
 {
@@ -15,13 +18,20 @@ void ADUPlayerController::BeginPlay()
 	DUHUD = Cast<ADUHUD>(GetHUD());
 }
 
+void ADUPlayerController::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
+{
+	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
+
+	DOREPLIFETIME(ADUPlayerController, MatchState);
+}
+
 void ADUPlayerController::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
 	SetHUDTime();
-	PollInit();
 	CheckTimeSync(DeltaTime);
+	PollInit();
 }
 
 void ADUPlayerController::CheckTimeSync(float DeltaTime)
@@ -60,6 +70,12 @@ void ADUPlayerController::SetHUDHealth(float Health, float MaxHealth)
 		FString HealthText = FString::Printf(TEXT("%d/%d"), FMath::CeilToInt(Health), FMath::CeilToInt(MaxHealth));
 		DUHUD->CharacterOverlay->HealthText->SetText(FText::FromString(HealthText));
 	}
+	else
+	{
+		bInitializeCharacterOverlay = true;
+		HUDHealth = Health;
+		HUDMaxHealth = MaxHealth;
+	}
 }
 
 void ADUPlayerController::SetHUDScore(float Score)
@@ -74,6 +90,11 @@ void ADUPlayerController::SetHUDScore(float Score)
 		FString ScoreText = FString::Printf(TEXT("%d"), FMath::FloorToInt(Score));
 		DUHUD->CharacterOverlay->ScoreAmount->SetText(FText::FromString(ScoreText));
 	}
+	else
+	{
+		bInitializeCharacterOverlay = true;
+		HUDScore = Score;
+	}
 }
 
 void ADUPlayerController::SetHUDDefeats(int32 Defeats)
@@ -87,6 +108,11 @@ void ADUPlayerController::SetHUDDefeats(int32 Defeats)
 	{
 		FString DefeatsText = FString::Printf(TEXT("%d"), Defeats);
 		DUHUD->CharacterOverlay->DefeatsAmount->SetText(FText::FromString(DefeatsText));
+	}
+	else
+	{
+		bInitializeCharacterOverlay = true;
+		HUDDefeats = Defeats;
 	}
 }
 
@@ -114,6 +140,7 @@ void ADUPlayerController::SetHUDTime()
 	{
 		SetHUDMatchCountdown(MatchTime - GetServerTime());
 	}
+
 
 	CountdownInt = SecondsLeft;
 }
@@ -161,5 +188,31 @@ void ADUPlayerController::ReceivedPlayer()
 	if (IsLocalController())
 	{
 		ServerRequestServerTime(GetWorld()->GetTimeSeconds());
+	}
+}
+
+void ADUPlayerController::OnMatchStateSet(FName State)
+{
+	MatchState = State;
+
+	if (MatchState == MatchState::InProgress)
+	{
+		DUHUD = DUHUD == nullptr ? Cast<ADUHUD>(GetHUD()) : DUHUD;
+		if (DUHUD)
+		{
+			DUHUD->AddCharacterOverlay();
+		}
+	}
+}
+
+void ADUPlayerController::OnRep_MatchState()
+{
+	if (MatchState == MatchState::InProgress)
+	{
+		DUHUD = DUHUD == nullptr ? Cast<ADUHUD>(GetHUD()) : DUHUD;
+		if (DUHUD)
+		{
+			DUHUD->AddCharacterOverlay();
+		}
 	}
 }

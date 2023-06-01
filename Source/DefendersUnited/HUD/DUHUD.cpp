@@ -8,8 +8,6 @@
 void ADUHUD::BeginPlay()
 {
 	Super::BeginPlay();
-
-	AddCharacterOverlay();
 }
 
 void ADUHUD::AddCharacterOverlay()

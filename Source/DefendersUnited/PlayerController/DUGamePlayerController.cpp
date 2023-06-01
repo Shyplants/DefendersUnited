@@ -30,7 +30,6 @@ void ADUGamePlayerController::ChangeInputMode(bool bGameMode)
 {
 	if (bGameMode)
 	{
-		UE_LOG(LogTemp, Warning, TEXT("Enter"));
 		SetInputMode(FInputModeGameOnly());
 		//SetInputMode(GameInputMode);
 		bShowMouseCursor = false;

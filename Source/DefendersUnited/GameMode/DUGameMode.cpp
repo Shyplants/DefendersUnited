@@ -34,6 +34,20 @@ void ADUGameMode::Tick(float DeltaTime)
 	}
 }
 
+void ADUGameMode::OnMatchStateSet()
+{
+	Super::OnMatchStateSet();
+
+	for (FConstPlayerControllerIterator It = GetWorld()->GetPlayerControllerIterator(); It; ++It)
+	{
+		ADUPlayerController* DUPlayer = Cast<ADUPlayerController>(*It);
+		if (DUPlayer)
+		{
+			DUPlayer->OnMatchStateSet(MatchState);
+		}
+	}
+}
+
 void ADUGameMode::PlayerEliminated(class ADUCharacter* ElimmedCharacter, class ADUPlayerController* VictimController, class ADUPlayerController* AttackerController)
 {
 	if (AttackerController == nullptr || AttackerController->PlayerState == nullptr) return;
@@ -47,6 +61,7 @@ void ADUGameMode::PlayerEliminated(class ADUCharacter* ElimmedCharacter, class A
 	}
 	if (VictimPlayerState)
 	{
+		UE_LOG(LogTemp, Warning, TEXT("Defeated"));
 		VictimPlayerState->AddToDefeats(1);
 	}
 
