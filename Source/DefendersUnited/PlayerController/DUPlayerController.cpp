@@ -4,6 +4,7 @@
 #include "DUPlayerController.h"
 #include "DefendersUnited/HUD/DUHUD.h"
 #include "DefendersUnited/HUD/CharacterOverlay.h"
+#include "DefendersUnited/HUD/Announcement.h"
 #include "Components/ProgressBar.h"
 #include "Components/TextBlock.h"
 #include "DefendersUnited/Character/DUCharacter.h"
@@ -16,6 +17,10 @@ void ADUPlayerController::BeginPlay()
 	Super::BeginPlay();
 
 	DUHUD = Cast<ADUHUD>(GetHUD());
+	if (DUHUD)
+	{
+		DUHUD->AddAnnouncement();
+	}
 }
 
 void ADUPlayerController::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
@@ -72,7 +77,7 @@ void ADUPlayerController::SetHUDHealth(float Health, float MaxHealth)
 	}
 	else
 	{
-		bInitializeCharacterOverlay = true;
+		bInitializeHealth = true;
 		HUDHealth = Health;
 		HUDMaxHealth = MaxHealth;
 	}
@@ -111,7 +116,7 @@ void ADUPlayerController::SetHUDDefeats(int32 Defeats)
 	}
 	else
 	{
-		bInitializeCharacterOverlay = true;
+		bInitializeDefeats = true;
 		HUDDefeats = Defeats;
 	}
 }
@@ -197,11 +202,7 @@ void ADUPlayerController::OnMatchStateSet(FName State)
 
 	if (MatchState == MatchState::InProgress)
 	{
-		DUHUD = DUHUD == nullptr ? Cast<ADUHUD>(GetHUD()) : DUHUD;
-		if (DUHUD)
-		{
-			DUHUD->AddCharacterOverlay();
-		}
+		HandleMatchHasStarted();
 	}
 }
 
@@ -209,10 +210,19 @@ void ADUPlayerController::OnRep_MatchState()
 {
 	if (MatchState == MatchState::InProgress)
 	{
-		DUHUD = DUHUD == nullptr ? Cast<ADUHUD>(GetHUD()) : DUHUD;
-		if (DUHUD)
+		HandleMatchHasStarted();
+	}
+}
+
+void ADUPlayerController::HandleMatchHasStarted()
+{
+	DUHUD = DUHUD == nullptr ? Cast<ADUHUD>(GetHUD()) : DUHUD;
+	if (DUHUD)
+	{
+		DUHUD->AddCharacterOverlay();
+		if (DUHUD->Announcement)
 		{
-			DUHUD->AddCharacterOverlay();
+			DUHUD->Announcement->SetVisibility(ESlateVisibility::Hidden);
 		}
 	}
 }
