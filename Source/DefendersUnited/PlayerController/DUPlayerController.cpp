@@ -11,16 +11,14 @@
 #include "Net/UnrealNetwork.h"
 #include "DefendersUnited/GameMode/DUGameMode.h"
 #include "DefendersUnited/PlayerState/DUPlayerState.h"
+#include "Kismet/GameplayStatics.h"
 
 void ADUPlayerController::BeginPlay()
 {
 	Super::BeginPlay();
 
 	DUHUD = Cast<ADUHUD>(GetHUD());
-	if (DUHUD)
-	{
-		DUHUD->AddAnnouncement();
-	}
+	ServerCheckMatchState();
 }
 
 void ADUPlayerController::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
@@ -46,6 +44,32 @@ void ADUPlayerController::CheckTimeSync(float DeltaTime)
 	{
 		ServerRequestServerTime(GetWorld()->GetTimeSeconds());
 		TimeSyncRunningTime = 0.f;
+	}
+}
+
+void ADUPlayerController::ServerCheckMatchState_Implementation()
+{
+	ADUGameMode* GameMode = Cast<ADUGameMode>(UGameplayStatics::GetGameMode(this));
+	if (GameMode)
+	{
+		WarmupTime = GameMode->WarmupTime;
+		MatchTime = GameMode->MatchTime;
+		LevelStartingTime = GameMode->LevelStartingTime;
+		MatchState = GameMode->GetMatchState();
+		ClientJoinMidgame(MatchState, WarmupTime, MatchTime, LevelStartingTime);
+	}
+}
+
+void ADUPlayerController::ClientJoinMidgame_Implementation(FName StateOfMatch, float Warmup, float Match, float StartingTime)
+{
+	WarmupTime = Warmup;
+	MatchTime = Match;
+	LevelStartingTime = StartingTime;
+	MatchState = StateOfMatch;
+	OnMatchStateSet(MatchState);
+	if (DUHUD && MatchState == MatchState::WaitingToStart)
+	{
+		DUHUD->AddAnnouncement();
 	}
 }
 
@@ -138,14 +162,41 @@ void ADUPlayerController::SetHUDMatchCountdown(float CountdownTime)
 	}
 }
 
+void ADUPlayerController::SetHUDAnnouncementCountdown(float CountdownTime)
+{
+	DUHUD = DUHUD == nullptr ? Cast<ADUHUD>(GetHUD()) : DUHUD;
+
+	bool bHUDValid = DUHUD &&
+		DUHUD->Announcement &&
+		DUHUD->Announcement->WarmupTime;
+	if (bHUDValid)
+	{
+		int32 Minutes = FMath::FloorToInt(CountdownTime / 60.f);
+		int32 Seconds = CountdownTime - Minutes * 60;
+
+		FString CountdownText = FString::Printf(TEXT("%02d:%02d"), Minutes, Seconds);
+		DUHUD->Announcement->WarmupTime->SetText(FText::FromString(CountdownText));
+	}
+}
+
 void ADUPlayerController::SetHUDTime()
 {
-	uint32 SecondsLeft = FMath::CeilToInt(MatchTime - GetServerTime());
+	float TimeLeft = 0.f;
+	if (MatchState == MatchState::WaitingToStart) TimeLeft = WarmupTime - GetServerTime() + LevelStartingTime;
+	else if(MatchState == MatchState::InProgress) TimeLeft = WarmupTime + MatchTime - GetServerTime() + LevelStartingTime;
+
+	uint32 SecondsLeft = FMath::CeilToInt(TimeLeft);
 	if (CountdownInt != SecondsLeft)
 	{
-		SetHUDMatchCountdown(MatchTime - GetServerTime());
+		if (MatchState == MatchState::WaitingToStart)
+		{
+			SetHUDAnnouncementCountdown(TimeLeft);
+		}
+		if (MatchState == MatchState::InProgress)
+		{
+			SetHUDMatchCountdown(TimeLeft);
+		}
 	}
-
 
 	CountdownInt = SecondsLeft;
 }
