@@ -255,6 +255,10 @@ void ADUPlayerController::OnMatchStateSet(FName State)
 	{
 		HandleMatchHasStarted();
 	}
+	else if (MatchState == MatchState::Cooldown)
+	{
+		HandleCooldown();
+	}
 }
 
 void ADUPlayerController::OnRep_MatchState()
@@ -262,6 +266,10 @@ void ADUPlayerController::OnRep_MatchState()
 	if (MatchState == MatchState::InProgress)
 	{
 		HandleMatchHasStarted();
+	}
+	else if (MatchState == MatchState::Cooldown)
+	{
+		HandleCooldown();
 	}
 }
 
@@ -274,6 +282,19 @@ void ADUPlayerController::HandleMatchHasStarted()
 		if (DUHUD->Announcement)
 		{
 			DUHUD->Announcement->SetVisibility(ESlateVisibility::Hidden);
+		}
+	}
+}
+
+void ADUPlayerController::HandleCooldown()
+{
+	DUHUD = DUHUD == nullptr ? Cast<ADUHUD>(GetHUD()) : DUHUD;
+	if (DUHUD)
+	{
+		DUHUD->CharacterOverlay->RemoveFromParent();
+		if (DUHUD->Announcement)
+		{
+			DUHUD->Announcement->SetVisibility(ESlateVisibility::Visible);
 		}
 	}
 }

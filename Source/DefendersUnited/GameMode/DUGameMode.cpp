@@ -8,6 +8,11 @@
 #include "GameFramework/PlayerStart.h"
 #include "DefendersUnited/PlayerState/DUPlayerState.h"
 
+namespace MatchState
+{
+	const FName Cooldown = FName("Cooldown");
+}
+
 ADUGameMode::ADUGameMode()
 {
 	bDelayedStart = true;
@@ -30,6 +35,14 @@ void ADUGameMode::Tick(float DeltaTime)
 		if (CountdownTime <= 0.f)
 		{
 			StartMatch();
+		}
+	}
+	else if (MatchState == MatchState::InProgress)
+	{
+		CountdownTime = WarmupTime + MatchTime - GetWorld()->GetTimeSeconds() + LevelStartingTime;
+		if (CountdownTime <= 0.f)
+		{
+			SetMatchState(MatchState::Cooldown);
 		}
 	}
 }
