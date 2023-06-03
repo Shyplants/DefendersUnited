@@ -54,16 +54,18 @@ void ADUPlayerController::ServerCheckMatchState_Implementation()
 	{
 		WarmupTime = GameMode->WarmupTime;
 		MatchTime = GameMode->MatchTime;
+		CooldownTime = GameMode->CooldownTime;
 		LevelStartingTime = GameMode->LevelStartingTime;
 		MatchState = GameMode->GetMatchState();
-		ClientJoinMidgame(MatchState, WarmupTime, MatchTime, LevelStartingTime);
+		ClientJoinMidgame(MatchState, WarmupTime, MatchTime, CooldownTime, LevelStartingTime);
 	}
 }
 
-void ADUPlayerController::ClientJoinMidgame_Implementation(FName StateOfMatch, float Warmup, float Match, float StartingTime)
+void ADUPlayerController::ClientJoinMidgame_Implementation(FName StateOfMatch, float Warmup, float Match, float Cooldown, float StartingTime)
 {
 	WarmupTime = Warmup;
 	MatchTime = Match;
+	CooldownTime = Cooldown;
 	LevelStartingTime = StartingTime;
 	MatchState = StateOfMatch;
 	OnMatchStateSet(MatchState);
@@ -154,6 +156,11 @@ void ADUPlayerController::SetHUDMatchCountdown(float CountdownTime)
 		DUHUD->CharacterOverlay->MatchCountdownText;
 	if (bHUDValid)
 	{
+		if (CountdownTime < 0.f)
+		{
+			DUHUD->CharacterOverlay->MatchCountdownText->SetText(FText());
+			return;
+		}
 		int32 Minutes = FMath::FloorToInt(CountdownTime / 60.f);
 		int32 Seconds = CountdownTime - Minutes * 60;
 
@@ -171,6 +178,11 @@ void ADUPlayerController::SetHUDAnnouncementCountdown(float CountdownTime)
 		DUHUD->Announcement->WarmupTime;
 	if (bHUDValid)
 	{
+		if (CountdownTime < 0.f)
+		{
+			DUHUD->Announcement->WarmupTime->SetText(FText());
+			return;
+		}
 		int32 Minutes = FMath::FloorToInt(CountdownTime / 60.f);
 		int32 Seconds = CountdownTime - Minutes * 60;
 
@@ -184,11 +196,26 @@ void ADUPlayerController::SetHUDTime()
 	float TimeLeft = 0.f;
 	if (MatchState == MatchState::WaitingToStart) TimeLeft = WarmupTime - GetServerTime() + LevelStartingTime;
 	else if(MatchState == MatchState::InProgress) TimeLeft = WarmupTime + MatchTime - GetServerTime() + LevelStartingTime;
-
+	else if(MatchState == MatchState::Cooldown) TimeLeft = CooldownTime +  WarmupTime + MatchTime - GetServerTime() + LevelStartingTime;
 	uint32 SecondsLeft = FMath::CeilToInt(TimeLeft);
+
+	if (HasAuthority())
+	{
+		if (DUGameMode == nullptr)
+		{
+			DUGameMode = Cast<ADUGameMode>(UGameplayStatics::GetGameMode(this));
+			LevelStartingTime = DUGameMode->LevelStartingTime;
+		}
+		DUGameMode = DUGameMode == nullptr ? Cast<ADUGameMode>(UGameplayStatics::GetGameMode(this)) : DUGameMode;
+		if (DUGameMode)
+		{
+			SecondsLeft = FMath::CeilToInt(DUGameMode->GetCountdownTime() + LevelStartingTime);
+		}
+	}
+
 	if (CountdownInt != SecondsLeft)
 	{
-		if (MatchState == MatchState::WaitingToStart)
+		if (MatchState == MatchState::WaitingToStart || MatchState == MatchState::Cooldown)
 		{
 			SetHUDAnnouncementCountdown(TimeLeft);
 		}
@@ -292,9 +319,16 @@ void ADUPlayerController::HandleCooldown()
 	if (DUHUD)
 	{
 		DUHUD->CharacterOverlay->RemoveFromParent();
-		if (DUHUD->Announcement)
+		bool bHUDValid = DUHUD->Announcement && 
+			DUHUD->Announcement->AnnouncementText && 
+			DUHUD->Announcement->InfoText;
+
+		if (bHUDValid)
 		{
 			DUHUD->Announcement->SetVisibility(ESlateVisibility::Visible);
+			FString AnnouncementText("New Match Starts In:");
+			DUHUD->Announcement->AnnouncementText->SetText(FText::FromString(AnnouncementText));
+			DUHUD->Announcement->InfoText->SetText(FText());
 		}
 	}
 }
