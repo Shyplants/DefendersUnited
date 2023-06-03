@@ -66,6 +66,7 @@ void ADUCharacter::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLife
 
 	DOREPLIFETIME_CONDITION(ADUCharacter, OverlappingWeapon, COND_OwnerOnly);
 	DOREPLIFETIME(ADUCharacter, Health);
+	DOREPLIFETIME(ADUCharacter, bDisableGameplay);
 }
 
 void ADUCharacter::PostInitializeComponents()
@@ -107,6 +108,10 @@ void ADUCharacter::Destroyed()
 	{
 		ElimBotComponent->DestroyComponent();
 	}
+	if (Combat && Combat->EquippedWeapon)
+	{
+		Combat->EquippedWeapon->Destroy();
+	}
 }
 
 void ADUCharacter::MulticastElim_Implementation()
@@ -135,6 +140,7 @@ void ADUCharacter::MulticastElim_Implementation()
 	// Disable character movement
 	GetCharacterMovement()->DisableMovement();
 	GetCharacterMovement()->StopMovementImmediately();
+	bDisableGameplay = true;
 	if (DUPlayerController)
 	{
 		DisableInput(DUPlayerController);
@@ -189,21 +195,7 @@ void ADUCharacter::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
-	if (GetLocalRole() > ENetRole::ROLE_SimulatedProxy && IsLocallyControlled())
-	{
-		AimOffset(DeltaTime);
-	}
-	else
-	{
-		TimeSinceLastMovementReplication += DeltaTime;
-		if (TimeSinceLastMovementReplication > 0.25f)
-		{
-			OnRep_ReplicatedMovement();
-		}
-		CalculateAO_Pitch();
-	}
-
-	
+	RotateInPlace(DeltaTime);
 	HideCameraIfCharacterClose();
 	PollInit();
 }
@@ -212,7 +204,7 @@ void ADUCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCompone
 {
 	Super::SetupPlayerInputComponent(PlayerInputComponent);
 
-	PlayerInputComponent->BindAction("Jump", IE_Pressed, this, &ACharacter::Jump);
+	PlayerInputComponent->BindAction("Jump", IE_Pressed, this, &ADUCharacter::Jump);
 
 	PlayerInputComponent->BindAxis("MoveForward", this, &ADUCharacter::MoveForward);
 	PlayerInputComponent->BindAxis("MoveRight", this, &ADUCharacter::MoveRight);
@@ -284,6 +276,7 @@ void ADUCharacter::ReceiveDamage(AActor* DamageActor, float Damage, const UDamag
 
 void ADUCharacter::MoveForward(float Value)
 {
+	if (bDisableGameplay) return;
 	if (Controller != nullptr && Value != 0.f)
 	{
 		const FRotator YawRotation(0.f, Controller->GetControlRotation().Yaw, 0.f);
@@ -294,6 +287,7 @@ void ADUCharacter::MoveForward(float Value)
 
 void ADUCharacter::MoveRight(float Value)
 {
+	if (bDisableGameplay) return;
 	if (Controller != nullptr && Value != 0.f)
 	{
 		const FRotator YawRotation(0.f, Controller->GetControlRotation().Yaw, 0.f);
@@ -314,6 +308,7 @@ void ADUCharacter::LookUp(float Value)
 
 void ADUCharacter::EquipButtonPressed()
 {
+	if (bDisableGameplay) return;
 	if (Combat)
 	{
 		if (HasAuthority())
@@ -424,6 +419,7 @@ void ADUCharacter::SimProxiesTurn()
 
 void ADUCharacter::Jump()
 {
+	if (bDisableGameplay) return;
 	if (bIsCrouched)
 	{
 		UnCrouch();
@@ -436,6 +432,7 @@ void ADUCharacter::Jump()
 
 void ADUCharacter::FireButtonPressed()
 {
+	if (bDisableGameplay) return;
 	if (Combat)
 	{
 		Combat->FireButtonPressed(true);
@@ -444,6 +441,7 @@ void ADUCharacter::FireButtonPressed()
 
 void ADUCharacter::FireButtonReleased()
 {
+	if (bDisableGameplay) return;
 	if (Combat)
 	{
 		Combat->FireButtonPressed(false);
@@ -521,6 +519,29 @@ void ADUCharacter::PollInit()
 	}
 }
 
+void ADUCharacter::RotateInPlace(float DeltaTime)
+{
+	if (bDisableGameplay)
+	{
+		bUseControllerRotationYaw = false;
+		TurningInPlace = ETurningInPlace::ETIP_NotTurning;
+		return;
+	}
+	if (GetLocalRole() > ENetRole::ROLE_SimulatedProxy && IsLocallyControlled())
+	{
+		AimOffset(DeltaTime);
+	}
+	else
+	{
+		TimeSinceLastMovementReplication += DeltaTime;
+		if (TimeSinceLastMovementReplication > 0.25f)
+		{
+			OnRep_ReplicatedMovement();
+		}
+		CalculateAO_Pitch();
+	}
+}
+
 void ADUCharacter::UpdateDissolveMaterial(float DissolveValue)
 {
 	if (DynamicDissolveMaterialInstances.Num() > 0)
@@ -579,6 +600,7 @@ void ADUCharacter::OnRep_OverlappingWeapon(AWeapon* LastWeapon)
 
 void ADUCharacter::CrouchButtonPressed()
 {
+	if (bDisableGameplay) return;
 	if (bIsCrouched)
 	{
 		UnCrouch();
@@ -592,6 +614,7 @@ void ADUCharacter::CrouchButtonPressed()
 
 void ADUCharacter::AimButtonPressed()
 {
+	if (bDisableGameplay) return;
 	if (Combat)
 	{
 		Combat->SetAiming(true);
@@ -600,6 +623,7 @@ void ADUCharacter::AimButtonPressed()
 
 void ADUCharacter::AimButtonReleased()
 {
+	if (bDisableGameplay) return;
 	if (Combat)
 	{
 		Combat->SetAiming(false);

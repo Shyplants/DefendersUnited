@@ -12,6 +12,7 @@
 #include "DefendersUnited/GameMode/DUGameMode.h"
 #include "DefendersUnited/PlayerState/DUPlayerState.h"
 #include "Kismet/GameplayStatics.h"
+#include "DefendersUnited/DUComponent/CombatComponent.h"
 
 void ADUPlayerController::BeginPlay()
 {
@@ -330,5 +331,11 @@ void ADUPlayerController::HandleCooldown()
 			DUHUD->Announcement->AnnouncementText->SetText(FText::FromString(AnnouncementText));
 			DUHUD->Announcement->InfoText->SetText(FText());
 		}
+	}
+	ADUCharacter* DUCharacter = Cast<ADUCharacter>(GetPawn());
+	if (DUCharacter && DUCharacter->GetCombat())
+	{
+		DUCharacter->bDisableGameplay = true;
+		DUCharacter->GetCombat()->FireButtonPressed(false);
 	}
 }
