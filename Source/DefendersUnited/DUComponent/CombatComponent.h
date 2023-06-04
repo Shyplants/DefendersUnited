@@ -3,9 +3,9 @@
 #include "CoreMinimal.h"
 #include "Components/ActorComponent.h"
 #include "DefendersUnited/HUD/DUHUD.h"
+#include "DefendersUnited/Weapon/WeaponTypes.h"
 #include "CombatComponent.generated.h"
 
-#define TRACE_LENGTH 80000
 
 
 UCLASS(ClassGroup = (Custom), meta = (BlueprintSpawnableComponent))

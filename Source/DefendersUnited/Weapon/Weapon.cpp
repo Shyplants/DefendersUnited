@@ -7,6 +7,7 @@
 #include "Components/SkeletalMeshComponent.h"
 #include "Casing.h"
 #include "Engine/SkeletalMeshSocket.h"
+#include "DefendersUnited\PlayerController\DUPlayerController.h"
 
 AWeapon::AWeapon()
 {

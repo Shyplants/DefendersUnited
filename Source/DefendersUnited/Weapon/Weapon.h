@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
+#include "WeaponTypes.h"
 #include "Weapon.generated.h"
 
 UENUM(BlueprintType)
@@ -51,6 +52,12 @@ public:
 	/*
 	* Automatic fire
 	*/
+
+	UPROPERTY(EditAnywhere)
+	float ZoomedFOV = 30.f;
+
+	UPROPERTY(EditAnywhere)
+	float ZoomInterpSpeed = 20.f;
 
 	UPROPERTY(EditAnywhere, Category = Combat)
 	float FireDelay = .15f;
@@ -102,15 +109,13 @@ private:
 	UPROPERTY(EditAnywhere)
 	TSubclassOf<class ACasing> CasingClass;
 
-	/*
-	* Zoomed FOV while aiming
-	*/
+	UPROPERTY()
+	class ADUCharacter* DUOwnerCharacter;
+	UPROPERTY()
+	class ADUPlayerController* DUOwnerController;
 
 	UPROPERTY(EditAnywhere)
-	float ZoomedFOV = 30.f;
-
-	UPROPERTY(EditAnywhere)
-	float ZoomInterpSpeed = 20.f;
+	EWeaponType WeaponType;
 
 public:
 	void SetWeaponState(EWeaponState State);
@@ -118,4 +123,5 @@ public:
 	FORCEINLINE USkeletalMeshComponent* GetWeaponMesh() const { return WeaponMesh; }
 	FORCEINLINE float GetZoomedFOV() const { return ZoomedFOV; }
 	FORCEINLINE float GetZoomedInterpSpeed() const { return ZoomInterpSpeed; }
+	FORCEINLINE EWeaponType GetWeaponType() const { return WeaponType; }
 };
