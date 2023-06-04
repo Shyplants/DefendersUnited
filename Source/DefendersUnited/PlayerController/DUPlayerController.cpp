@@ -13,6 +13,7 @@
 #include "DefendersUnited/PlayerState/DUPlayerState.h"
 #include "Kismet/GameplayStatics.h"
 #include "DefendersUnited/DUComponent/CombatComponent.h"
+#include "DefendersUnited/GameState/DUGameState.h"
 
 void ADUPlayerController::BeginPlay()
 {
@@ -330,6 +331,37 @@ void ADUPlayerController::HandleCooldown()
 			FString AnnouncementText("New Match Starts In:");
 			DUHUD->Announcement->AnnouncementText->SetText(FText::FromString(AnnouncementText));
 			DUHUD->Announcement->InfoText->SetText(FText());
+
+			ADUGameState* DUGameState = Cast<ADUGameState>(UGameplayStatics::GetGameState(this));
+			ADUPlayerState* DUPlayerState = GetPlayerState<ADUPlayerState>();
+			if (DUGameState && DUPlayerState)
+			{
+				TArray<ADUPlayerState*> TopPlayers = DUGameState->TopScoringPlayers;
+				FString InfoTextString;
+				if (TopPlayers.Num() == 0)
+				{
+					InfoTextString = FString("There is no winner.");
+				}
+				else if (TopPlayers.Num() == 1 && TopPlayers[0] == DUPlayerState)
+				{
+					InfoTextString = FString("You are the winner!");
+				}
+				else if (TopPlayers.Num() == 1)
+				{
+					InfoTextString = FString::Printf(TEXT("Winner: \n%s"), *TopPlayers[0]->GetPlayerName());
+				}
+				else if(TopPlayers.Num() > 1)
+				{
+					InfoTextString = FString("Players tied for the win:\n");
+					for (auto TiedPlayer : TopPlayers)
+					{
+						InfoTextString.Append(FString::Printf(TEXT("%s\n"), *TiedPlayer->GetPlayerName()));
+					}
+				}
+
+				DUHUD->Announcement->InfoText->SetText(FText::FromString(InfoTextString));
+			}
+			
 		}
 	}
 	ADUCharacter* DUCharacter = Cast<ADUCharacter>(GetPawn());

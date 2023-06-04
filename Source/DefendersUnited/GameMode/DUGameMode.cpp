@@ -7,6 +7,7 @@
 #include "Kismet/GameplayStatics.h"
 #include "GameFramework/PlayerStart.h"
 #include "DefendersUnited/PlayerState/DUPlayerState.h"
+#include "DefendersUnited/GameState/DUGameState.h"
 
 namespace MatchState
 {
@@ -76,9 +77,12 @@ void ADUGameMode::PlayerEliminated(class ADUCharacter* ElimmedCharacter, class A
 	ADUPlayerState* AttackerPlayerState = AttackerController ? Cast<ADUPlayerState>(AttackerController->PlayerState) : nullptr;
 	ADUPlayerState* VictimPlayerState = VictimController ? Cast<ADUPlayerState>(VictimController->PlayerState) : nullptr;
 
-	if (AttackerPlayerState && AttackerPlayerState != VictimPlayerState)
+	ADUGameState* DUGameState = GetGameState<ADUGameState>();
+
+	if (AttackerPlayerState && AttackerPlayerState != VictimPlayerState && DUGameState)
 	{
 		AttackerPlayerState->AddToScore(1.f);
+		DUGameState->UpdateTopScore(AttackerPlayerState);
 	}
 	if (VictimPlayerState)
 	{
