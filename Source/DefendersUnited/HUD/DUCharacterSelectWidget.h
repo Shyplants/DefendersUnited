@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "Blueprint/UserWidget.h"
+#include "DefendersUnited/Weapon/WeaponTypes.h"
 #include "DUCharacterSelectWidget.generated.h"
 
 /**
@@ -13,6 +14,9 @@ UCLASS()
 class DEFENDERSUNITED_API UDUCharacterSelectWidget : public UUserWidget
 {
 	GENERATED_BODY()
+
+public:
+	FORCEINLINE EWeaponType GetWeaponType() const { return WeaponType; }
 
 protected:
 	UFUNCTION(BlueprintCallable)
@@ -52,4 +56,6 @@ private:
 	void OnConfirmClicked();
 
 	TArray<USkeletalMesh*> SkeletalMeshArray;
+
+	EWeaponType WeaponType;
 };

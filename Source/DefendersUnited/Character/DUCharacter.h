@@ -7,7 +7,11 @@
 #include "DefendersUnited/DUTypes/TurningInPlace.h"
 #include "DefendersUnited/Interfaces/InteractWithCrosshairsInterface.h"
 #include "Components/TimelineComponent.h"
+<<<<<<< Updated upstream
 #include "DefendersUnited/DUTypes/CombatState.h"
+=======
+#include "DefendersUnited/Weapon/WeaponTypes.h"
+>>>>>>> Stashed changes
 #include "DUCharacter.generated.h"
 
 UCLASS()
@@ -35,6 +39,7 @@ public:
 
 	UFUNCTION(BlueprintImplementableEvent)
 	void ShowSniperScopeWidget(bool bShowScope);
+
 
 protected:
 	virtual void BeginPlay() override;
@@ -107,6 +112,79 @@ private:
 	float TimeSinceLastMovementReplication;
 	float CalculateSpeed();
 
+<<<<<<< Updated upstream
+=======
+	/*
+	* Player health
+	*/
+
+	UPROPERTY(EditAnywhere, Category = "Player Stats")
+	float MaxHealth = 100.f;
+
+	UPROPERTY(ReplicatedUsing = OnRep_Health, VisibleAnywhere, Category = "Player Stats")
+	float Health = 100.f;
+
+	UFUNCTION()
+	void OnRep_Health();
+
+	UPROPERTY()
+	class ADUPlayerController* DUPlayerController;
+
+	bool bElimmed = false;
+	
+	FTimerHandle ElimTimer;
+
+	UPROPERTY(EditDefaultsOnly)
+	float ElimDelay = 3.f;
+
+	void ElimTimerFinished();
+
+	/*
+	* Dissolve effect
+	*/
+
+	UPROPERTY(VisibleAnywhere)
+	UTimelineComponent* DissolveTimeline;
+	FOnTimelineFloat DissolveTrack;
+
+	UPROPERTY(EditAnywhere)
+	UCurveFloat* DissolveCurve;
+	
+	UFUNCTION()
+	void UpdateDissolveMaterial(float DissolveValue);
+	void StartDissolve();
+
+	// Dynamic instance that we can change at runtime
+	UPROPERTY(VisibleAnywhere, Category = Elim)
+	TArray<UMaterialInstanceDynamic*> DynamicDissolveMaterialInstances;
+
+	// Material instance set on the Blueprint, used with the dynamic material instance
+	UPROPERTY(EditAnywhere, Category = Elim)
+	TArray<UMaterialInstance*> DissolveMaterialInstances;
+
+	/*
+	* Elim bot
+	*/
+
+	UPROPERTY(EditAnywhere)
+	UParticleSystem* ElimBotEffect;
+
+	UPROPERTY(VisibleAnywhere)
+	UParticleSystemComponent* ElimBotComponent;
+
+	UPROPERTY(EditAnywhere)
+	class USoundCue* ElimBotSound;
+
+	UPROPERTY()
+	class ADUPlayerState* DUPlayerState;
+
+	UPROPERTY(VisibleAnywhere)
+	TSubclassOf<class AActor> WeaponBlueprint = NULL;
+
+	UPROPERTY(VisibleAnywhere)
+	EWeaponType WeaponType = EWeaponType::EWT_MAX;
+
+>>>>>>> Stashed changes
 public:
 	void SetOverlappingWeapon(AWeapon* Weapon);
 	bool IsWeaponEquipped();

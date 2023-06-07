@@ -12,7 +12,19 @@
 #include "Components/CapsuleComponent.h"
 #include "Kismet/KismetMathLibrary.h"
 #include "DUAnimInstance.h"
+<<<<<<< Updated upstream
 #include "DefendersUnited\DefendersUnited.h"
+=======
+#include "DefendersUnited/DefendersUnited.h"
+#include "DefendersUnited/PlayerController/DUPlayerController.h"
+#include "DefendersUnited/GameMode/DUGameMode.h"
+#include "TimerManager.h"
+#include "Kismet/GameplayStatics.h"
+#include "Sound/SoundCue.h"
+#include "Particles/ParticleSystemComponent.h"
+#include "DefendersUnited\HUD\DUCharacterSelectWidget.h"
+#include "DefendersUnited/PlayerState/DUPlayerState.h"
+>>>>>>> Stashed changes
 
 // Sets default values
 ADUCharacter::ADUCharacter()
@@ -47,6 +59,45 @@ ADUCharacter::ADUCharacter()
 
 
 	TurningInPlace = ETurningInPlace::ETIP_NotTurning;
+<<<<<<< Updated upstream
+=======
+	NetUpdateFrequency = 66.f;
+	MinNetUpdateFrequency = 33.f;
+
+	DissolveTimeline = CreateDefaultSubobject<UTimelineComponent>(TEXT("DissolveTimelineComponent"));
+
+	FString path = "";
+	//WeaponType = EWeaponType::EWT_SubmachineGun;
+	//WeaponType = EWeaponType::EWT_AssaultRifle;
+	//WeaponType = EWeaponType::EWT_RocketLauncher;
+	//WeaponType = GetCharacterSelectWidget<ADUCharacterSelectWidget>()->GetWeaponType();
+
+	switch (WeaponType)
+	{
+	case EWeaponType::EWT_AssaultRifle:
+		path = "/Script/Engine.Blueprint'/Game/Blueprints/Weapon/BP_AssaultRifle.BP_AssaultRifle'";
+		break;
+	case EWeaponType::EWT_RocketLauncher:
+		path = "/Script/Engine.Blueprint'/Game/Blueprints/Weapon/BP_RocketLauncher.BP_RocketLauncher'";
+		break;
+	case EWeaponType::EWT_SniperRifle:
+		path = "/Script/Engine.Blueprint'/Game/Blueprints/Weapon/BP_SniperRifle.BP_SniperRifle'";
+		break;
+	case EWeaponType::EWT_SubmachineGun:
+		path = "/Script/Engine.Blueprint'/Game/Blueprints/Weapon/BP_SubMaChineGun.BP_SubMaChineGun'";
+		break;
+	default:
+		path = "";
+		break;
+	}
+
+	ConstructorHelpers::FObjectFinder<UBlueprint> WeaponItem(*path);
+	if (WeaponItem.Object)
+	{
+		WeaponBlueprint = ((UClass*)WeaponItem.Object->GeneratedClass);
+	}
+
+>>>>>>> Stashed changes
 }
 
 void ADUCharacter::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
@@ -65,6 +116,176 @@ void ADUCharacter::PostInitializeComponents()
 	}
 }
 
+<<<<<<< Updated upstream
+=======
+void ADUCharacter::OnRep_ReplicatedMovement()
+{
+	Super::OnRep_ReplicatedMovement();
+	SimProxiesTurn();
+	TimeSinceLastMovementReplication = 0.f;
+}
+
+void ADUCharacter::Elim()
+{
+	if (Combat&& Combat->EquippedWeapon)
+	{
+		Combat->EquippedWeapon->Dropped();
+	}
+	MulticastElim();
+	GetWorldTimerManager().SetTimer(
+		ElimTimer,
+		this,
+		&ADUCharacter::ElimTimerFinished,
+		ElimDelay
+	);
+}
+
+void ADUCharacter::Destroyed()
+{
+	Super::Destroyed();
+
+	if (ElimBotComponent)
+	{
+		ElimBotComponent->DestroyComponent();
+	}
+
+	ADUGameMode* DUGameMode = Cast<ADUGameMode>(UGameplayStatics::GetGameMode(this));
+	bool bMatchNotInProgress = DUGameMode && DUGameMode->GetMatchState() != MatchState::InProgress;
+
+	if (Combat && Combat->EquippedWeapon && bMatchNotInProgress)
+	{
+		Combat->EquippedWeapon->Destroy();
+	}
+}
+
+void ADUCharacter::MulticastElim_Implementation()
+{
+
+	bElimmed = true;
+	PlayElimMontage();
+
+	// Start dissolve effect
+	if (DissolveMaterialInstances.Num() > 0)
+	{
+		int index = 0;
+		for (UMaterialInstance* DissolveMaterialInstance : DissolveMaterialInstances)
+		{
+			UMaterialInstanceDynamic* DynamicDissolveMaterialInstance = UMaterialInstanceDynamic::Create(DissolveMaterialInstance, this);
+			GetMesh()->SetMaterial(index, DynamicDissolveMaterialInstance);
+			DynamicDissolveMaterialInstance->SetScalarParameterValue(TEXT("Dissolve"), 0.55f);
+			DynamicDissolveMaterialInstance->SetScalarParameterValue(TEXT("Glow"), 200.f);
+			DynamicDissolveMaterialInstances.Add(DynamicDissolveMaterialInstance);
+
+			index++;
+		}		
+	}
+	StartDissolve();
+
+	// Disable character movement
+	GetCharacterMovement()->DisableMovement();
+	GetCharacterMovement()->StopMovementImmediately();
+	bDisableGameplay = true;
+	if (Combat)
+	{
+		Combat->FireButtonPressed(false);
+	}
+	if (DUPlayerController)
+	{
+		DisableInput(DUPlayerController);
+	}
+
+	// Disable collision
+	GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+	GetMesh()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+
+	// Spawn elim bot
+	if (ElimBotEffect)
+	{
+		FVector ElimBotSpawnPoint(GetActorLocation().X, GetActorLocation().Y, GetActorLocation().Z + 200.f);
+		ElimBotComponent = UGameplayStatics::SpawnEmitterAtLocation(GetWorld(),
+			ElimBotEffect,
+			ElimBotSpawnPoint,
+			GetActorRotation()
+		);
+	}
+	if (ElimBotSound)
+	{
+		UGameplayStatics::SpawnSoundAtLocation(
+			this,
+			ElimBotSound,
+			GetActorLocation()
+		);
+	}
+	bool bHideSniperScope = IsLocallyControlled() && Combat && Combat->bAiming && Combat->EquippedWeapon && Combat->EquippedWeapon->GetWeaponType() == EWeaponType::EWT_SniperRifle;
+	if (bHideSniperScope)
+	{
+		ShowSniperScopeWidget(false);
+	}
+}
+
+void ADUCharacter::ElimTimerFinished()
+{
+	ADUGameMode* DUGameMode = GetWorld()->GetAuthGameMode<ADUGameMode>();
+	if (DUGameMode)
+	{
+		DUGameMode->RequestRespawn(this, Controller);
+	}
+}
+
+void ADUCharacter::BeginPlay()
+{
+	Super::BeginPlay();
+
+	UpdateHUDHealth();
+	if (HasAuthority())
+	{
+		OnTakeAnyDamage.AddDynamic(this, &ADUCharacter::ReceiveDamage);
+	}
+
+	UWorld* world = GetWorld();
+	if (world)
+	{
+		FActorSpawnParameters SpawnParams;
+		SpawnParams.Owner = this;
+		FRotator rotator;
+		FVector  SpawnLocation = GetActorLocation();
+		SpawnLocation.Z -= 90.0f;
+
+		OverlappingWeapon = Cast<AWeapon>(world->SpawnActor<AActor>(WeaponBlueprint, SpawnLocation, rotator, SpawnParams));
+	}
+
+	EquipButtonPressed();
+}
+
+void ADUCharacter::Tick(float DeltaTime)
+{
+	Super::Tick(DeltaTime);
+
+	RotateInPlace(DeltaTime);
+	HideCameraIfCharacterClose();
+	PollInit();
+}
+
+void ADUCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
+{
+	Super::SetupPlayerInputComponent(PlayerInputComponent);
+
+	PlayerInputComponent->BindAction("Jump", IE_Pressed, this, &ADUCharacter::Jump);
+
+	PlayerInputComponent->BindAxis("MoveForward", this, &ADUCharacter::MoveForward);
+	PlayerInputComponent->BindAxis("MoveRight", this, &ADUCharacter::MoveRight);
+	PlayerInputComponent->BindAxis("Turn", this, &ADUCharacter::Turn);
+	PlayerInputComponent->BindAxis("LookUp", this, &ADUCharacter::LookUp);
+
+	//PlayerInputComponent->BindAction("Equip", IE_Pressed, this, &ADUCharacter::EquipButtonPressed);
+	PlayerInputComponent->BindAction("Crouch", IE_Pressed, this, &ADUCharacter::CrouchButtonPressed);
+	PlayerInputComponent->BindAction("Aim", IE_Pressed, this, &ADUCharacter::AimButtonPressed);
+	PlayerInputComponent->BindAction("Aim", IE_Released, this, &ADUCharacter::AimButtonReleased);
+	PlayerInputComponent->BindAction("Fire", IE_Pressed, this, &ADUCharacter::FireButtonPressed);
+	PlayerInputComponent->BindAction("Fire", IE_Released, this, &ADUCharacter::FireButtonReleased);
+}
+
+>>>>>>> Stashed changes
 void ADUCharacter::PlayFireMontage(bool bAiming)
 {
 	if (Combat == nullptr || Combat->EquippedWeapon == nullptr) return;
