@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "Blueprint/UserWidget.h"
+#include "DefendersUnited/Weapon/WeaponTypes.h"
 #include "DUCharacterSelectWidget.generated.h"
 
 /**
@@ -52,4 +53,6 @@ private:
 	void OnConfirmClicked();
 
 	TArray<USkeletalMesh*> SkeletalMeshArray;
+
+	EWeaponType WeaponType;
 };

@@ -7,6 +7,7 @@
 #include "DefendersUnited/DUTypes/TurningInPlace.h"
 #include "DefendersUnited/Interfaces/InteractWithCrosshairsInterface.h"
 #include "Components/TimelineComponent.h"
+#include "DefendersUnited/Weapon/WeaponTypes.h"
 #include "DUCharacter.generated.h"
 
 UCLASS()
@@ -175,6 +176,12 @@ private:
 
 	UPROPERTY()
 	class ADUPlayerState* DUPlayerState;
+
+	UPROPERTY(VisibleAnywhere)
+	TSubclassOf<class AActor> WeaponBlueprint = NULL;
+
+	UPROPERTY(VisibleAnywhere)
+	EWeaponType WeaponType = EWeaponType::EWT_MAX;
 
 public:
 	void SetOverlappingWeapon(AWeapon* Weapon);

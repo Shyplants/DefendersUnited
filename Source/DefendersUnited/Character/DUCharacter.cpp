@@ -58,6 +58,37 @@ ADUCharacter::ADUCharacter()
 	MinNetUpdateFrequency = 33.f;
 
 	DissolveTimeline = CreateDefaultSubobject<UTimelineComponent>(TEXT("DissolveTimelineComponent"));
+
+	FString path = "";
+	//WeaponType = EWeaponType::EWT_SubmachineGun;
+	//WeaponType = EWeaponType::EWT_AssaultRifle;
+	//WeaponType = EWeaponType::EWT_RocketLauncher;
+	//WeaponType = GetCharacterSelectWidget<ADUCharacterSelectWidget>()->GetWeaponType();
+
+	switch (WeaponType)
+	{
+	case EWeaponType::EWT_AssaultRifle:
+		path = "/Script/Engine.Blueprint'/Game/Blueprints/Weapon/BP_AssaultRifle.BP_AssaultRifle'";
+		break;
+	case EWeaponType::EWT_RocketLauncher:
+		path = "/Script/Engine.Blueprint'/Game/Blueprints/Weapon/BP_RocketLauncher.BP_RocketLauncher'";
+		break;
+	case EWeaponType::EWT_SniperRifle:
+		path = "/Script/Engine.Blueprint'/Game/Blueprints/Weapon/BP_SniperRifle.BP_SniperRifle'";
+		break;
+	case EWeaponType::EWT_SubmachineGun:
+		path = "/Script/Engine.Blueprint'/Game/Blueprints/Weapon/BP_SubMaChineGun.BP_SubMaChineGun'";
+		break;
+	default:
+		path = "";
+		break;
+	}
+
+	ConstructorHelpers::FObjectFinder<UBlueprint> WeaponItem(*path);
+	if (WeaponItem.Object)
+	{
+		WeaponBlueprint = ((UClass*)WeaponItem.Object->GeneratedClass);
+	}
 }
 
 void ADUCharacter::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
@@ -201,6 +232,20 @@ void ADUCharacter::BeginPlay()
 	{
 		OnTakeAnyDamage.AddDynamic(this, &ADUCharacter::ReceiveDamage);
 	}
+
+	UWorld* world = GetWorld();
+	if (world)
+	{
+		FActorSpawnParameters SpawnParams;
+		SpawnParams.Owner = this;
+		FRotator rotator;
+		FVector  SpawnLocation = GetActorLocation();
+		SpawnLocation.Z -= 90.0f;
+
+		OverlappingWeapon = Cast<AWeapon>(world->SpawnActor<AActor>(WeaponBlueprint, SpawnLocation, rotator, SpawnParams));
+	}
+
+	EquipButtonPressed();
 
 }
 
