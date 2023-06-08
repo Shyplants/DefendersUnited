@@ -19,6 +19,7 @@ public:
 
 	UPROPERTY(Replicated)
 	TArray<class ADUPlayerState*> TopScoringPlayers;
+
 private:
 
 	float TopScore = 0.f;

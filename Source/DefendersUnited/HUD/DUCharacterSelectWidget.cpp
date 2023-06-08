@@ -4,7 +4,9 @@
 #include "Components/EditableTextBox.h"
 #include "EngineUtils.h"
 #include "Animation/SkeletalMeshActor.h"
+#include "DefendersUnited/Character/DUCharacter.h"
 #include "Kismet/GameplayStatics.h"
+#include "DefendersUnited/GameState/DUGameInstance.h"
 
 void UDUCharacterSelectWidget::NextCharacter(bool bForward)
 {
@@ -45,7 +47,7 @@ void UDUCharacterSelectWidget::NativeConstruct()
 	
 	PrevButton = Cast<UButton>(GetWidgetFromName(TEXT("btnPrev")));
 	NextButton = Cast<UButton>(GetWidgetFromName(TEXT("btnNext")));
-	TextBox = Cast<UEditableTextBox>(GetWidgetFromName(TEXT("edtPlayerName")));
+	//TextBox = Cast<UEditableTextBox>(GetWidgetFromName(TEXT("edtPlayerName")));
 	ConfirmButton = Cast<UButton>(GetWidgetFromName(TEXT("btnConfirm")));
 
 	PrevButton->OnClicked.AddDynamic(this, &UDUCharacterSelectWidget::OnPrevClicked);
@@ -65,32 +67,37 @@ void UDUCharacterSelectWidget::OnNextClicked()
 
 void UDUCharacterSelectWidget::OnConfirmClicked()
 {
-	FString CharacterName = TextBox->GetText().ToString();
-	if (CharacterName.Len() <= 0 || CharacterName.Len() > 10) return;
-
+	//FString CharacterName = TextBox->GetText().ToString();
+	//if (CharacterName.Len() <= 0 || CharacterName.Len() > 10) return;
+	
 	switch (CurrentIndex)
 	{
 	case 0:
 		WeaponType = EWeaponType::EWT_AssaultRifle;
-		UE_LOG(LogTemp, Warning, TEXT("AR"));
 		break;
 	case 1:
 		WeaponType = EWeaponType::EWT_RocketLauncher;
-		UE_LOG(LogTemp, Warning, TEXT("RL"));
 		break;
 	case 2:
 		WeaponType = EWeaponType::EWT_SniperRifle;
-		UE_LOG(LogTemp, Warning, TEXT("SR"));
 		break;
 	case 3:
 		WeaponType = EWeaponType::EWT_SubmachineGun;
-		UE_LOG(LogTemp, Warning, TEXT("SMG"));
 		break;
 	default:
 		WeaponType = EWeaponType::EWT_MAX;
 		break;
+	}	
+
+	UDUGameInstance* DUGameInstance = Cast<UDUGameInstance>(GetGameInstance());
+
+	if (DUGameInstance)
+	{
+		DUGameInstance->WeaponType = WeaponType;
 	}
+
 
 	UGameplayStatics::GetPlayerController(GetWorld(), 0)->SetInputMode(FInputModeGameOnly());
 	UGameplayStatics::OpenLevel(GetWorld(), FName("Lobby"));
+
 }

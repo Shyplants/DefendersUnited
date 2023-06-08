@@ -15,6 +15,10 @@ class DEFENDERSUNITED_API UDUCharacterSelectWidget : public UUserWidget
 {
 	GENERATED_BODY()
 
+public:
+	UPROPERTY(EditAnywhere)
+	EWeaponType WeaponType;
+
 protected:
 	UFUNCTION(BlueprintCallable)
 	void NextCharacter(bool bForward = true);
@@ -53,6 +57,4 @@ private:
 	void OnConfirmClicked();
 
 	TArray<USkeletalMesh*> SkeletalMeshArray;
-
-	EWeaponType WeaponType;
 };

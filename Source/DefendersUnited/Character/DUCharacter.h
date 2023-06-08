@@ -35,6 +35,9 @@ public:
 	UFUNCTION(BlueprintImplementableEvent)
 	void ShowSniperScopeWidget(bool bShowScope);
 
+	UPROPERTY(VisibleAnywhere)
+	EWeaponType WeaponType = EWeaponType::EWT_MAX;
+
 protected:
 	virtual void BeginPlay() override;
 
@@ -178,10 +181,7 @@ private:
 	class ADUPlayerState* DUPlayerState;
 
 	UPROPERTY(VisibleAnywhere)
-	TSubclassOf<class AActor> WeaponBlueprint = NULL;
-
-	UPROPERTY(VisibleAnywhere)
-	EWeaponType WeaponType = EWeaponType::EWT_MAX;
+	TArray<TSubclassOf<class AActor>> WeaponBlueprint;
 
 public:
 	void SetOverlappingWeapon(AWeapon* Weapon);

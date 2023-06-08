@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/PlayerState.h"
+#include "DefendersUnited/Weapon/WeaponTypes.h"
 #include "DUPlayerState.generated.h"
 
 /**
@@ -25,6 +26,9 @@ public:
 
 	void AddToScore(float ScoreAmount);
 	void AddToDefeats(int32 DefeatsAmount);
+
+	EWeaponType WeaponType;
+
 private:
 	UPROPERTY()
 	class ADUCharacter* Character;

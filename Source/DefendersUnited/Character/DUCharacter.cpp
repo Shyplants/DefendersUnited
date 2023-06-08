@@ -20,6 +20,7 @@
 #include "Sound/SoundCue.h"
 #include "Particles/ParticleSystemComponent.h"
 #include "DefendersUnited/PlayerState/DUPlayerState.h"
+#include "DefendersUnited/GameState/DUGameInstance.h"
 
 // Sets default values
 ADUCharacter::ADUCharacter()
@@ -59,35 +60,26 @@ ADUCharacter::ADUCharacter()
 
 	DissolveTimeline = CreateDefaultSubobject<UTimelineComponent>(TEXT("DissolveTimelineComponent"));
 
-	FString path = "";
-	//WeaponType = EWeaponType::EWT_SubmachineGun;
-	//WeaponType = EWeaponType::EWT_AssaultRifle;
-	//WeaponType = EWeaponType::EWT_RocketLauncher;
-	//WeaponType = GetCharacterSelectWidget<ADUCharacterSelectWidget>()->GetWeaponType();
-
-	switch (WeaponType)
+	// AR // RL // SR // SMG	
+	ConstructorHelpers::FObjectFinder<UBlueprint> WeaponItem0(TEXT("/Script/Engine.Blueprint'/Game/Blueprints/Weapon/BP_AssaultRifle.BP_AssaultRifle'"));
+	if (WeaponItem0.Object)
 	{
-	case EWeaponType::EWT_AssaultRifle:
-		path = "/Script/Engine.Blueprint'/Game/Blueprints/Weapon/BP_AssaultRifle.BP_AssaultRifle'";
-		break;
-	case EWeaponType::EWT_RocketLauncher:
-		path = "/Script/Engine.Blueprint'/Game/Blueprints/Weapon/BP_RocketLauncher.BP_RocketLauncher'";
-		break;
-	case EWeaponType::EWT_SniperRifle:
-		path = "/Script/Engine.Blueprint'/Game/Blueprints/Weapon/BP_SniperRifle.BP_SniperRifle'";
-		break;
-	case EWeaponType::EWT_SubmachineGun:
-		path = "/Script/Engine.Blueprint'/Game/Blueprints/Weapon/BP_SubMaChineGun.BP_SubMaChineGun'";
-		break;
-	default:
-		path = "";
-		break;
+		WeaponBlueprint.Emplace((UClass*)WeaponItem0.Object->GeneratedClass);
 	}
-
-	ConstructorHelpers::FObjectFinder<UBlueprint> WeaponItem(*path);
-	if (WeaponItem.Object)
+	ConstructorHelpers::FObjectFinder<UBlueprint> WeaponItem1(TEXT("/Script/Engine.Blueprint'/Game/Blueprints/Weapon/BP_RocketLauncher.BP_RocketLauncher'"));
+	if (WeaponItem1.Object)
 	{
-		WeaponBlueprint = ((UClass*)WeaponItem.Object->GeneratedClass);
+		WeaponBlueprint.Emplace((UClass*)WeaponItem1.Object->GeneratedClass);
+	}
+	ConstructorHelpers::FObjectFinder<UBlueprint> WeaponItem2(TEXT("/Script/Engine.Blueprint'/Game/Blueprints/Weapon/BP_SniperRifle.BP_SniperRifle'"));
+	if (WeaponItem2.Object)
+	{
+		WeaponBlueprint.Emplace((UClass*)WeaponItem2.Object->GeneratedClass);
+	}
+	ConstructorHelpers::FObjectFinder<UBlueprint> WeaponItem3(TEXT("/Script/Engine.Blueprint'/Game/Blueprints/Weapon/BP_SubMaChineGun.BP_SubMaChineGun'"));
+	if (WeaponItem3.Object)
+	{
+		WeaponBlueprint.Emplace((UClass*)WeaponItem3.Object->GeneratedClass);
 	}
 }
 
@@ -233,6 +225,34 @@ void ADUCharacter::BeginPlay()
 		OnTakeAnyDamage.AddDynamic(this, &ADUCharacter::ReceiveDamage);
 	}
 
+	UDUGameInstance* DUGameInstance = Cast<UDUGameInstance>(GetGameInstance());
+
+	if (DUGameInstance)
+	{
+		WeaponType = DUGameInstance->WeaponType;
+	}
+
+	int tmp;
+
+	switch (WeaponType)
+	{
+	case EWeaponType::EWT_AssaultRifle:
+		tmp = 0;
+		break;
+	case EWeaponType::EWT_RocketLauncher:
+		tmp = 1;
+		break;
+	case EWeaponType::EWT_SniperRifle:
+		tmp = 2;
+		break;
+	case EWeaponType::EWT_SubmachineGun:
+		tmp = 3;
+		break;
+	default:
+		tmp = 0;
+		break;
+	}	
+
 	UWorld* world = GetWorld();
 	if (world)
 	{
@@ -242,7 +262,7 @@ void ADUCharacter::BeginPlay()
 		FVector  SpawnLocation = GetActorLocation();
 		SpawnLocation.Z -= 90.0f;
 
-		OverlappingWeapon = Cast<AWeapon>(world->SpawnActor<AActor>(WeaponBlueprint, SpawnLocation, rotator, SpawnParams));
+		OverlappingWeapon = Cast<AWeapon>(world->SpawnActor<AActor>(WeaponBlueprint[tmp], SpawnLocation, rotator, SpawnParams));
 	}
 
 	EquipButtonPressed();

@@ -23,6 +23,7 @@ void ADUGamePlayerController::SetupInputComponent()
 
 void ADUGamePlayerController::BeginPlay()
 {
+	UE_LOG(LogTemp, Warning, TEXT("Start"));
 }
 
 
