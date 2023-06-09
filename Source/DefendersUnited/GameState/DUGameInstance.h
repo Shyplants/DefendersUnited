@@ -17,7 +17,7 @@ class DEFENDERSUNITED_API UDUGameInstance : public UGameInstance
 
 public:
 
-	EWeaponType WeaponType;
+	EWeaponType WeaponType = EWeaponType::EWT_MAX;
 
 	UDUGameInstance* GetInstance();
 	
