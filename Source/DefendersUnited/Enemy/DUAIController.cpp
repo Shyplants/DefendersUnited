@@ -50,9 +50,9 @@ ETeamAttitude::Type ADUAIController::GetTeamAttitudeTowards(const AActor& Other)
 
 void ADUAIController::OnPlayerDetected(const TArray<AActor*>& DetectedPawn)
 {
-	if (BlackboardComponent)
+	if (BlackboardComponent && SightConfig)
 	{
-		if (BlackboardComponent->GetValueAsObject(FName("PlayerActorKey")))
+		if (GetPawn()->GetDistanceTo(DetectedPawn[0]) > SightConfig->SightRadius)
 		{
 			BlackboardComponent->SetValueAsObject(FName("PlayerActorKey"), NULL);
 		}
