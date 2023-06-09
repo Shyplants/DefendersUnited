@@ -4,13 +4,14 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/PlayerController.h"
+#include "GenericTeamAgentInterface.h"
 #include "DUPlayerController.generated.h"
 
 /**
  * 
  */
 UCLASS()
-class DEFENDERSUNITED_API ADUPlayerController : public APlayerController
+class DEFENDERSUNITED_API ADUPlayerController : public APlayerController, public IGenericTeamAgentInterface
 {
 	GENERATED_BODY()
 public:
@@ -90,4 +91,6 @@ private:
 	int32 HUDDefeats;
 	bool bInitializeDefeats = false;
 
+	FGenericTeamId TeamId;
+	FGenericTeamId GetGenericTeamId() const;
 };

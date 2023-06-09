@@ -21,6 +21,8 @@ void ADUPlayerController::BeginPlay()
 
 	DUHUD = Cast<ADUHUD>(GetHUD());
 	ServerCheckMatchState();
+
+	TeamId = FGenericTeamId(10);
 }
 
 void ADUPlayerController::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
@@ -370,4 +372,9 @@ void ADUPlayerController::HandleCooldown()
 		DUCharacter->bDisableGameplay = true;
 		DUCharacter->GetCombat()->FireButtonPressed(false);
 	}
+}
+
+FGenericTeamId ADUPlayerController::GetGenericTeamId() const
+{
+	return TeamId;
 }

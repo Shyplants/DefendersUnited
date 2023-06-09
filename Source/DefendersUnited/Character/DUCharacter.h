@@ -176,6 +176,12 @@ private:
 	UPROPERTY()
 	class ADUPlayerState* DUPlayerState;
 
+
+	/*
+	* AI Perception
+	*/
+	class UAIPerceptionStimuliSourceComponent* PerceptionStimuliSource;
+
 public:
 	void SetOverlappingWeapon(AWeapon* Weapon);
 	bool IsWeaponEquipped();
