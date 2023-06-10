@@ -21,7 +21,7 @@ void UDUEnemyAnimInstance::NativeUpdateAnimation(float DeltaTime)
 	if (Enemy == nullptr) return;
 
 
-	// bAttack = Enemy->IsAttack();
+	bAttack = Enemy->IsAttack();
 
 	FVector Velocity = Enemy->GetVelocity();
 	Velocity.Z = 0.f;

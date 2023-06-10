@@ -7,6 +7,7 @@
 #include "Components/CapsuleComponent.h"
 #include "Kismet/KismetMathLibrary.h"
 #include "Engine/TargetPoint.h"
+#include "DUEnemyAnimInstance.h"
 
 // Sets default values
 ADUEnemy::ADUEnemy()
@@ -14,6 +15,14 @@ ADUEnemy::ADUEnemy()
  	// Set this character to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = false;
 
+}
+
+void ADUEnemy::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
+{
+	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
+
+	DOREPLIFETIME(ADUEnemy, Health);
+	DOREPLIFETIME(ADUEnemy, Mode);
 }
 
 
@@ -62,6 +71,7 @@ void ADUEnemy::Destroyed()
 void ADUEnemy::SetMode(int InputMode)
 {
 	Mode = InputMode;
+	UE_LOG(LogTemp, Warning, TEXT("SetMode: %d\n"), Mode);
 }
 
 void ADUEnemy::ReceiveDamage(AActor* DamageActor, float Damage, const UDamageType* DamageType, AController* InstigatorController, AActor* DamageCauser)
@@ -84,6 +94,20 @@ void ADUEnemy::ReceiveDamage(AActor* DamageActor, float Damage, const UDamageTyp
 	}
 }
 
+void ADUEnemy::OnRep_Mode()
+{
+	UE_LOG(LogTemp, Warning, TEXT("OnRep_Mode: %d\n"), Mode);
+	if(Mode == 1)
+		PlayFireMontage();
+}
+
+
+void ADUEnemy::OnRep_Health()
+{
+	// UpdateHUDHealth();
+	// PlayHitReactMontage();
+}
+
 FVector ADUEnemy::GetTargetPointLocation()
 {
 	if (!TargetPoint)
@@ -92,4 +116,16 @@ FVector ADUEnemy::GetTargetPointLocation()
 	}
 
 	return TargetPoint->GetActorLocation();
+}
+
+void ADUEnemy::PlayFireMontage()
+{
+	UE_LOG(LogTemp, Warning, TEXT("PlayFireMontage Called\n"));
+	UAnimInstance* AnimInstance = GetMesh()->GetAnimInstance();
+	UE_LOG(LogTemp, Warning, TEXT("AnimInstance Valid : %d\n"), AnimInstance != NULL);
+	if (AnimInstance && FireMontage)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("FireMontage Valid \n"));
+		AnimInstance->Montage_Play(FireMontage);
+	}
 }

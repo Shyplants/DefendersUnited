@@ -15,10 +15,11 @@ class DEFENDERSUNITED_API ADUEnemy : public ACharacter
 public:
 	ADUEnemy();
 	virtual void Tick(float DeltaTime) override;
-	// virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
+	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
 	virtual void Destroyed() override;
 
 	FVector GetTargetPointLocation();
+	void PlayFireMontage();
 
 protected:
 	virtual void BeginPlay() override;
@@ -27,25 +28,34 @@ protected:
 	void ReceiveDamage(AActor* DamageActor, float Damage, const UDamageType* DamageType, class AController* InstigatorController, AActor* DamageCauser);
 
 private:
-	UPROPERTY(BlueprintReadOnly, Category = "AI", meta = (AllowPrivateAccess = "true"))
-	int Mode;
-
 	UPROPERTY(EditAnywhere, Category = "AI", meta = (AllowPrivateAccess = "true"))
 	class ATargetPoint* TargetPoint;
+	
+	UPROPERTY(ReplicatedUsing = OnRep_Mode, VisibleAnywhere, Category = "AI")
+	int Mode = 0;
+
+	UFUNCTION()
+	void OnRep_Mode();
 
 	UPROPERTY(EditAnywhere, Category = "Enemy Stats")
 	float MaxHealth = 100.f;
 
-	
-	//UPROPERTY(ReplicatedUsing = OnRep_Health, VisibleAnywhere, Category = "Enemy Stats")
+	UPROPERTY(ReplicatedUsing = OnRep_Health, VisibleAnywhere, Category = "Enemy Stats")
 	float Health = 100.f;
+
+	UFUNCTION()
+	void OnRep_Health();
+
+	UPROPERTY(EditAnywhere, Category = Combat)
+	class UAnimMontage* FireMontage;
 	
 public:
+	UFUNCTION(BlueprintCallable, Category = "AI")
 	void SetMode(int InputMode);
 
 	// FVector GetHitTarget() const;
 	// FORCEINLINE bool IsElimmed() const { return bElimmed; }
-	// FORCEINLINE bool IsAttack() const { return bAttack; }
+	FORCEINLINE bool IsAttack() const { return Mode == 1; }
 	FORCEINLINE float GetHealth() const { return Health; }
 	FORCEINLINE float GetMaxHealth() const { return MaxHealth; }
 };
