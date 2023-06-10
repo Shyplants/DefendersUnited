@@ -22,7 +22,9 @@ public:
 	ADUGameMode();
 	virtual void Tick(float DeltaTime) override;
 	virtual void PlayerEliminated(class ADUCharacter* ElimmedCharacter, class ADUPlayerController* VictimController, class ADUPlayerController* AttackerController);
+	virtual void EnemyEliminated(class ADUEnemy* ElimmedEnemy, class ADUPlayerController* AttackerController);
 	virtual void RequestRespawn(class ACharacter* ElimmedCharacter, AController* ElimmedController);
+	virtual void RequestRemoveEnemy(class ADUEnemy* ElimmedEnemy);
 
 	UPROPERTY(EditDefaultsOnly)
 	float WarmupTime = 10.f;

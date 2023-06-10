@@ -29,7 +29,6 @@ void UDUEnemyAnimInstance::NativeUpdateAnimation(float DeltaTime)
 
 	bIsInAir = Enemy->GetCharacterMovement()->IsFalling();
 	bIsAccelerating = Enemy->GetCharacterMovement()->GetCurrentAcceleration().Size() > 0.f ? true : false;
-	// UE_LOG(LogTemp, Log, TEXT("Speed : %f"), Speed);
-	// bElimmed = Enemy->IsElimmed();
+	bElimmed = Enemy->IsElimmed();
 
 }

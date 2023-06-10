@@ -3,6 +3,7 @@
 
 #include "DUGameMode.h"
 #include "DefendersUnited/Character/DUCharacter.h"
+#include "DefendersUnited/Enemy/DUEnemy.h"
 #include "DefendersUnited/PlayerController/DUPlayerController.h"
 #include "Kismet/GameplayStatics.h"
 #include "GameFramework/PlayerStart.h"
@@ -86,13 +87,31 @@ void ADUGameMode::PlayerEliminated(class ADUCharacter* ElimmedCharacter, class A
 	}
 	if (VictimPlayerState)
 	{
-		UE_LOG(LogTemp, Warning, TEXT("Defeated"));
 		VictimPlayerState->AddToDefeats(1);
 	}
 
 	if (ElimmedCharacter)
 	{
 		ElimmedCharacter->Elim();
+	}
+}
+
+void ADUGameMode::EnemyEliminated(class ADUEnemy* ElimmedEnemy, class ADUPlayerController* AttackerController)
+{
+	if (AttackerController == nullptr || AttackerController->PlayerState == nullptr) return;
+	ADUPlayerState* AttackerPlayerState = AttackerController ? Cast<ADUPlayerState>(AttackerController->PlayerState) : nullptr;
+
+	ADUGameState* DUGameState = GetGameState<ADUGameState>();
+
+	if (AttackerPlayerState && DUGameState)
+	{
+		AttackerPlayerState->AddToScore(1.f);
+		DUGameState->UpdateTopScore(AttackerPlayerState);
+	}
+
+	if (ElimmedEnemy)
+	{
+		ElimmedEnemy->Elim();
 	}
 }
 
@@ -109,5 +128,13 @@ void ADUGameMode::RequestRespawn(class ACharacter* ElimmedCharacter, AController
 		UGameplayStatics::GetAllActorsOfClass(this, APlayerStart::StaticClass(), PlayerStarts);
 		int32 Selection = FMath::RandRange(0, PlayerStarts.Num() - 1);
 		RestartPlayerAtPlayerStart(ElimmedController, PlayerStarts[Selection]);
+	}
+}
+
+void ADUGameMode::RequestRemoveEnemy(class ADUEnemy* ElimmedEnemy)
+{
+	if (ElimmedEnemy)
+	{
+		ElimmedEnemy->Destroy();
 	}
 }

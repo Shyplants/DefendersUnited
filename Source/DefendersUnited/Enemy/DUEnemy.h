@@ -18,8 +18,12 @@ public:
 	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
 	virtual void Destroyed() override;
 
+	void Elim();
+	UFUNCTION(NetMulticast, Reliable)
+	void MulticastElim();
 	FVector GetTargetPointLocation();
 	void PlayFireMontage();
+	void PlayElimMontage();
 
 protected:
 	virtual void BeginPlay() override;
@@ -48,13 +52,25 @@ private:
 
 	UPROPERTY(EditAnywhere, Category = Combat)
 	class UAnimMontage* FireMontage;
+
+	UPROPERTY(EditAnywhere, Category = Combat)
+	class UAnimMontage* ElimMontage;
+
+	bool bElimmed = false;
+
+	FTimerHandle ElimTimer;
+
+	UPROPERTY(EditDefaultsOnly)
+	float ElimDelay = 2.f;
+
+	void ElimTimerFinished();
 	
 public:
 	UFUNCTION(BlueprintCallable, Category = "AI")
 	void SetMode(int InputMode);
 
 	// FVector GetHitTarget() const;
-	// FORCEINLINE bool IsElimmed() const { return bElimmed; }
+	FORCEINLINE bool IsElimmed() const { return bElimmed; }
 	FORCEINLINE bool IsAttack() const { return Mode == 1; }
 	FORCEINLINE float GetHealth() const { return Health; }
 	FORCEINLINE float GetMaxHealth() const { return MaxHealth; }
