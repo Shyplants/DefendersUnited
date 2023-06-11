@@ -37,8 +37,18 @@ public:
 	UPROPERTY()
 	class UCharacterOverlay* CharacterOverlay;
 
+	/*
+	UPROPERTY(EditAnywhere, Category = "Enemy Stats")
+	TSubclassOf<class UUserWidget> EnemyOverlayClass;
+	void AddEnemyOverlay();
+
+	
+	UPROPERTY()
+	class UEnemyOverlay* EnemyOverlay;
+	*/
 	UPROPERTY(EditAnywhere, Category = "Announcements")
 	TSubclassOf<class UUserWidget> AnnouncementClass;
+	
 
 	UPROPERTY()
 	class UAnnouncement* Announcement;

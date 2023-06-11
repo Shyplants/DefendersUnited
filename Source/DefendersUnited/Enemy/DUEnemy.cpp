@@ -3,7 +3,11 @@
 
 #include "DUEnemy.h"
 #include "Net/UnrealNetwork.h"
+#include "Components/WidgetComponent.h"
+#include "Components/ProgressBar.h"
 #include "GameFramework/CharacterMovementComponent.h"
+#include "GameFramework/PlayerController.h"
+#include "GameFramework/HUD.h"
 #include "Components/CapsuleComponent.h"
 #include "Kismet/GameplayStatics.h"
 #include "Kismet/KismetMathLibrary.h"
@@ -11,20 +15,40 @@
 #include "DUEnemyAnimInstance.h"
 #include "DefendersUnited/DefendersUnited.h"
 #include "DefendersUnited/GameMode/DUGameMode.h"
+#include "DefendersUnited/Character/DUCharacter.h"
 #include "DefendersUnited/PlayerController/DUPlayerController.h"
+#include "DefendersUnited/HUD/EnemyOverlay.h"
+#include "DUAIController.h"
 #include "TimerManager.h"
 
 // Sets default values
 ADUEnemy::ADUEnemy()
 {
  	// Set this character to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
-	PrimaryActorTick.bCanEverTick = false;
+	PrimaryActorTick.bCanEverTick = true;
 
 	GetCapsuleComponent()->SetCollisionResponseToChannel(ECollisionChannel::ECC_Camera, ECollisionResponse::ECR_Ignore);
 	GetMesh()->SetCollisionObjectType(ECC_SkeletalMesh);
 	GetMesh()->SetCollisionResponseToChannel(ECollisionChannel::ECC_Camera, ECollisionResponse::ECR_Ignore);
 	GetMesh()->SetCollisionResponseToChannel(ECollisionChannel::ECC_Visibility, ECollisionResponse::ECR_Block);
 
+
+	EnemyOverlayComponent = CreateDefaultSubobject<UWidgetComponent>(TEXT("EnemyOverlayComponent"));
+	EnemyOverlayComponent->SetupAttachment(RootComponent);
+	
+	/*
+	EnemyOverlayComponent = CreateDefaultSubobject<UWidgetComponent>(TEXT("EnemyOverlayComponent"));
+	EnemyOverlayComponent->SetupAttachment(RootComponent);
+	if (EnemyOverlayComponent)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("EnemyOverlay Casted"));
+		EnemyOverlayComponent.WidgetCl
+		EnemyOverlay = EnemyOverlayComponent->GetWidgetClass();
+		UE_LOG(LogTemp, Warning, TEXT("EnemyOverlay State: %d"), EnemyOverlayComponent->GetWidgetClass()->IsValidLowLevel());
+		SetHUDHealth();
+	}
+
+	*/
 }
 
 void ADUEnemy::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
@@ -46,6 +70,32 @@ void ADUEnemy::BeginPlay()
 	{
 		OnTakeAnyDamage.AddDynamic(this, &ADUEnemy::ReceiveDamage);
 	}
+
+	if (EnemyOverlayClass)
+	{
+		EnemyOverlay = CreateWidget<UEnemyOverlay>(GetWorld(), EnemyOverlayClass);
+	}
+	if (EnemyOverlay)
+	{
+		FVector EnemyLocation = GetActorLocation();
+		
+		if (EnemyOverlayComponent)
+		{
+			
+			// EnemyOverlayComponent->AttachToComponent(GetRootComponent(), FAttachmentTransformRules::SnapToTargetIncludingScale);
+			EnemyOverlayComponent->SetWidget(EnemyOverlay);
+			// EnemyOverlayComponent->SetWorldLocation(FVector(0.f, 0.f, 134.f)); // 적 오브젝트 머리 위로 위치 조정
+			EnemyOverlayComponent->SetVisibility(true);
+		}
+
+
+		// EnemyOverlay->SetPositionInViewport(FVector2D(0, 5.f));
+		// EnemyOverlay->AddToViewport();
+	}
+	else
+	{
+		UE_LOG(LogTemp, Warning, TEXT("EnemyOverlay Not Casted!"));
+	}
 	
 }
 
@@ -54,6 +104,18 @@ void ADUEnemy::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
+	
+	ADUCharacter* DUCharacter = Cast<ADUCharacter>(UGameplayStatics::GetPlayerCharacter(this, 0));
+	FRotator LookAtRotator;
+
+	if (EnemyOverlayComponent && DUCharacter)
+	{
+		// UE_LOG(LogTemp, Warning, TEXT("EnemyHealthWidget && DUCharacter Valid"));
+		LookAtRotator = UKismetMathLibrary::FindLookAtRotation(EnemyOverlayComponent->GetComponentLocation(), DUCharacter->GetActorLocation());
+
+		EnemyOverlayComponent->SetWorldRotation(LookAtRotator);
+	}
+	
 }
 
 
@@ -87,7 +149,7 @@ void ADUEnemy::ReceiveDamage(AActor* DamageActor, float Damage, const UDamageTyp
 {
 	Health = FMath::Clamp(Health - Damage, 0.f, MaxHealth);
 	UE_LOG(LogTemp, Warning, TEXT("Health: %f \n"), Health);
-	// UpdateHUDHealth();
+	SetHUDHealth();
 	// PlayHitReactMontage();
 
 	if (Health == 0.0f)
@@ -112,6 +174,7 @@ void ADUEnemy::OnRep_Mode()
 
 void ADUEnemy::OnRep_Health()
 {
+	SetHUDHealth();
 	// UpdateHUDHealth();
 	// PlayHitReactMontage();
 }
@@ -216,4 +279,25 @@ void ADUEnemy::PlayElimMontage()
 	{
 		AnimInstance->Montage_Play(ElimMontage);
 	}
+}
+
+void ADUEnemy::SetHUDHealth()
+{
+	UE_LOG(LogTemp, Warning, TEXT("SetHUDHealth Called"));
+	bool bHUDValid = EnemyOverlay &&
+		EnemyOverlay->HealthBar;
+
+	/*
+	UE_LOG(LogTemp, Warning, TEXT("EnemyOverlay Valid"), EnemyOverlay);
+	UE_LOG(LogTemp, Warning, TEXT("HealthBar Valid"), EnemyOverlay->HealthBar);
+	*/
+
+	if (bHUDValid)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("EnemyOverlay && EnemyOverlay->HealthBar"));
+		const float HealthPercent = Health / MaxHealth;
+		UE_LOG(LogTemp, Warning, TEXT("HealthPercent : %f"), HealthPercent);
+		EnemyOverlay->HealthBar->SetPercent(HealthPercent);
+	}
+	
 }

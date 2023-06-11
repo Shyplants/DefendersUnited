@@ -4,6 +4,7 @@
 #include "DUHUD.h"
 #include "GameFramework/PlayerController.h"
 #include "CharacterOverlay.h"
+// #include "EnemyOverlay.h"
 #include "Announcement.h"
 
 void ADUHUD::BeginPlay()
@@ -20,6 +21,18 @@ void ADUHUD::AddCharacterOverlay()
 		CharacterOverlay->AddToViewport();
 	}
 }
+
+/*
+void ADUHUD::AddEnemyOverlay()
+{
+	APlayerController* PlayerController = GetOwningPlayerController();
+	if (PlayerController && EnemyOverlayClass)
+	{
+		EnemyOverlay = CreateWidget<UEnemyOverlay>(PlayerController, EnemyOverlayClass);
+		EnemyOverlay->AddToViewport();
+	}
+}
+*/
 
 void ADUHUD::AddAnnouncement()
 {

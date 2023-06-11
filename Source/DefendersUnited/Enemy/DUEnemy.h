@@ -25,6 +25,8 @@ public:
 	void PlayFireMontage();
 	void PlayElimMontage();
 
+	void SetHUDHealth();
+
 protected:
 	virtual void BeginPlay() override;
 
@@ -32,6 +34,15 @@ protected:
 	void ReceiveDamage(AActor* DamageActor, float Damage, const UDamageType* DamageType, class AController* InstigatorController, AActor* DamageCauser);
 
 private:
+	UPROPERTY(EditAnywhere, Category = "Enemy Stats")
+	TSubclassOf<class UUserWidget> EnemyOverlayClass;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
+	class UWidgetComponent* EnemyOverlayComponent;
+	
+	UPROPERTY()
+	class UEnemyOverlay* EnemyOverlay;
+
 	UPROPERTY(EditAnywhere, Category = "AI", meta = (AllowPrivateAccess = "true"))
 	class ATargetPoint* TargetPoint;
 	
