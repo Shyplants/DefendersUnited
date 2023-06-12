@@ -259,9 +259,10 @@ void ADUCharacter::BeginPlay()
 		FActorSpawnParameters SpawnParams;
 		SpawnParams.Owner = this;
 		FRotator rotator;
-		FVector  SpawnLocation = GetActorLocation();
+		FVector  SpawnLocation = FVector3d (100.0f, -2500.0f, -1300.0f);//GetActorLocation();
 		SpawnLocation.Z -= 90.0f;
 
+		UE_LOG(LogTemp, Warning, TEXT("Spawn"));
 		OverlappingWeapon = Cast<AWeapon>(world->SpawnActor<AActor>(WeaponBlueprint[tmp], SpawnLocation, rotator, SpawnParams));
 	}
 
