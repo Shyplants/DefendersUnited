@@ -71,7 +71,6 @@ void AProjectileRocket::OnHit(UPrimitiveComponent* HitComp, AActor* OtherActor, 
 
 	if (OtherActor == GetOwner())
 	{
-		UE_LOG(LogTemp, Warning, TEXT("Hit self"));
 		return;
 	}
 

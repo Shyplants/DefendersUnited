@@ -22,6 +22,7 @@
 #include "DefendersUnited/PlayerState/DUPlayerState.h"
 #include "Perception/AIPerceptionStimuliSourceComponent.h"
 #include "Perception/AISense_Sight.h"
+#include "DefendersUnited/GameState/DUGameInstance.h"
 
 // Sets default values
 ADUCharacter::ADUCharacter()
@@ -63,6 +64,28 @@ ADUCharacter::ADUCharacter()
 
 	PerceptionStimuliSource = CreateDefaultSubobject<UAIPerceptionStimuliSourceComponent>(TEXT("PerceptionStimuliSource"));
 	PerceptionStimuliSource->RegisterForSense(UAISense_Sight::StaticClass());  // AISense_Sight µî·Ï
+
+	// AR // RL // SR // SMG	
+	ConstructorHelpers::FObjectFinder<UBlueprint> WeaponItem0(TEXT("/Script/Engine.Blueprint'/Game/Blueprints/Weapon/BP_AssaultRifle.BP_AssaultRifle'"));
+	if (WeaponItem0.Object)
+	{
+		WeaponBlueprint.Emplace((UClass*)WeaponItem0.Object->GeneratedClass);
+	}
+	ConstructorHelpers::FObjectFinder<UBlueprint> WeaponItem1(TEXT("/Script/Engine.Blueprint'/Game/Blueprints/Weapon/BP_RocketLauncher.BP_RocketLauncher'"));
+	if (WeaponItem1.Object)
+	{
+		WeaponBlueprint.Emplace((UClass*)WeaponItem1.Object->GeneratedClass);
+	}
+	ConstructorHelpers::FObjectFinder<UBlueprint> WeaponItem2(TEXT("/Script/Engine.Blueprint'/Game/Blueprints/Weapon/BP_SniperRifle.BP_SniperRifle'"));
+	if (WeaponItem2.Object)
+	{
+		WeaponBlueprint.Emplace((UClass*)WeaponItem2.Object->GeneratedClass);
+	}
+	ConstructorHelpers::FObjectFinder<UBlueprint> WeaponItem3(TEXT("/Script/Engine.Blueprint'/Game/Blueprints/Weapon/BP_SubMaChineGun.BP_SubMaChineGun'"));
+	if (WeaponItem3.Object)
+	{
+		WeaponBlueprint.Emplace((UClass*)WeaponItem3.Object->GeneratedClass);
+	}
 }
 
 void ADUCharacter::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
@@ -207,6 +230,13 @@ void ADUCharacter::BeginPlay()
 		OnTakeAnyDamage.AddDynamic(this, &ADUCharacter::ReceiveDamage);
 	}
 
+	UDUGameInstance* DUGameInstance = Cast<UDUGameInstance>(GetGameInstance());
+
+	if (DUGameInstance)
+	{
+		WeaponType = DUGameInstance->WeaponType;
+	}
+
 }
 
 void ADUCharacter::Tick(float DeltaTime)
@@ -216,6 +246,49 @@ void ADUCharacter::Tick(float DeltaTime)
 	RotateInPlace(DeltaTime);
 	HideCameraIfCharacterClose();
 	PollInit();
+
+	if (!bWeaponSpawn)
+	{
+		UWorld* world = GetWorld();
+		if (world)
+		{
+			int tmp;
+
+			switch (WeaponType)
+			{
+			case EWeaponType::EWT_AssaultRifle:
+				tmp = 0;
+				break;
+			case EWeaponType::EWT_RocketLauncher:
+				tmp = 1;
+				break;
+			case EWeaponType::EWT_SniperRifle:
+				tmp = 2;
+				break;
+			case EWeaponType::EWT_SubmachineGun:
+				tmp = 3;
+				break;
+			default:
+				tmp = 0;
+				break;
+			}
+
+			if (IsLocallyControlled()) {
+				FActorSpawnParameters SpawnParams;
+				SpawnParams.Owner = this;
+				FRotator rotator;
+				FVector  SpawnLocation = GetActorLocation(); // FVector3d(100.0f, -2500.0f, -1300.0f);
+				SpawnLocation.Z -= 90.0f;
+
+				UE_LOG(LogTemp, Warning, TEXT("Spawn"));
+				OverlappingWeapon = Cast<AWeapon>(world->SpawnActor<AActor>(WeaponBlueprint[tmp], SpawnLocation, rotator, SpawnParams));
+
+				EquipButtonPressed();
+
+				bWeaponSpawn = true;
+			}
+		}
+	}
 }
 
 void ADUCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
@@ -229,7 +302,7 @@ void ADUCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCompone
 	PlayerInputComponent->BindAxis("Turn", this, &ADUCharacter::Turn);
 	PlayerInputComponent->BindAxis("LookUp", this, &ADUCharacter::LookUp);
 
-	PlayerInputComponent->BindAction("Equip", IE_Pressed, this, &ADUCharacter::EquipButtonPressed);
+	//PlayerInputComponent->BindAction("Equip", IE_Pressed, this, &ADUCharacter::EquipButtonPressed);
 	PlayerInputComponent->BindAction("Crouch", IE_Pressed, this, &ADUCharacter::CrouchButtonPressed);
 	PlayerInputComponent->BindAction("Aim", IE_Pressed, this, &ADUCharacter::AimButtonPressed);
 	PlayerInputComponent->BindAction("Aim", IE_Released, this, &ADUCharacter::AimButtonReleased);

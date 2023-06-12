@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "Blueprint/UserWidget.h"
+#include "DefendersUnited/Weapon/WeaponTypes.h"
 #include "DUCharacterSelectWidget.generated.h"
 
 /**
@@ -13,6 +14,10 @@ UCLASS()
 class DEFENDERSUNITED_API UDUCharacterSelectWidget : public UUserWidget
 {
 	GENERATED_BODY()
+
+public:
+	UPROPERTY(EditAnywhere)
+	EWeaponType WeaponType;
 
 protected:
 	UFUNCTION(BlueprintCallable)

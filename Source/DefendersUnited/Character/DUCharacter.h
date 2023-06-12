@@ -7,6 +7,7 @@
 #include "DefendersUnited/DUTypes/TurningInPlace.h"
 #include "DefendersUnited/Interfaces/InteractWithCrosshairsInterface.h"
 #include "Components/TimelineComponent.h"
+#include "DefendersUnited/Weapon/WeaponTypes.h"
 #include "DUCharacter.generated.h"
 
 UCLASS()
@@ -33,6 +34,11 @@ public:
 
 	UFUNCTION(BlueprintImplementableEvent)
 	void ShowSniperScopeWidget(bool bShowScope);
+
+	UPROPERTY(VisibleAnywhere)
+	EWeaponType WeaponType = EWeaponType::EWT_MAX;
+
+	bool bWeaponSpawn = false;
 
 protected:
 	virtual void BeginPlay() override;
@@ -175,6 +181,9 @@ private:
 
 	UPROPERTY()
 	class ADUPlayerState* DUPlayerState;
+
+	UPROPERTY(VisibleAnywhere)
+	TArray<TSubclassOf<class AActor>> WeaponBlueprint;
 
 
 	/*
