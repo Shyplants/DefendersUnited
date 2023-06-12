@@ -41,7 +41,7 @@ protected:
 	class UButton* NextButton;
 
 	UPROPERTY()
-	class UEditableTextBox* TextBox;
+	class UEditableTextBox* NameTextBox;
 
 	UPROPERTY()
 	class UButton* ConfirmButton;

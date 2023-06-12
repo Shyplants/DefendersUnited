@@ -147,6 +147,8 @@ void ADUEnemy::SetMode(int InputMode)
 
 void ADUEnemy::ReceiveDamage(AActor* DamageActor, float Damage, const UDamageType* DamageType, AController* InstigatorController, AActor* DamageCauser)
 {
+	if (Health == 0.0f) return;
+
 	Health = FMath::Clamp(Health - Damage, 0.f, MaxHealth);
 	UE_LOG(LogTemp, Warning, TEXT("Health: %f \n"), Health);
 	SetHUDHealth();

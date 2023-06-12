@@ -29,11 +29,11 @@ void AHitScanWeapon::Fire(const FVector& HitTarget)
 		FHitResult FireHit;
 		WeaponTraceHit(Start, HitTarget, FireHit);
 
-		ADUCharacter* DUCharacter = Cast<ADUCharacter>(FireHit.GetActor());
-		if (DUCharacter && HasAuthority() && InstigatorController)
+		// ADUCharacter* DUCharacter = Cast<ADUCharacter>(FireHit.GetActor());
+		if (FireHit.GetActor() && HasAuthority() && InstigatorController)
 		{
 			UGameplayStatics::ApplyDamage(
-				DUCharacter,
+				FireHit.GetActor(),
 				Damage,
 				InstigatorController,
 				this,

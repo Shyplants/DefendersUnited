@@ -6,6 +6,8 @@
 #include "Animation/SkeletalMeshActor.h"
 #include "Kismet/GameplayStatics.h"
 #include "DefendersUnited/GameState/DUGameInstance.h"
+#include "DefendersUnited/PlayerState/DUPlayerState.h"
+#include "DefendersUnited/PlayerController/DUPlayerController.h"
 
 void UDUCharacterSelectWidget::NextCharacter(bool bForward)
 {
@@ -47,7 +49,7 @@ void UDUCharacterSelectWidget::NativeConstruct()
 	
 	PrevButton = Cast<UButton>(GetWidgetFromName(TEXT("btnPrev")));
 	NextButton = Cast<UButton>(GetWidgetFromName(TEXT("btnNext")));
-	//TextBox = Cast<UEditableTextBox>(GetWidgetFromName(TEXT("edtPlayerName")));
+	NameTextBox = Cast<UEditableTextBox>(GetWidgetFromName(TEXT("edtPlayerName")));
 	ConfirmButton = Cast<UButton>(GetWidgetFromName(TEXT("btnConfirm")));
 
 	PrevButton->OnClicked.AddDynamic(this, &UDUCharacterSelectWidget::OnPrevClicked);
@@ -67,8 +69,8 @@ void UDUCharacterSelectWidget::OnNextClicked()
 
 void UDUCharacterSelectWidget::OnConfirmClicked()
 {
-	//FString CharacterName = TextBox->GetText().ToString();
-	//if (CharacterName.Len() <= 0 || CharacterName.Len() > 10) return;
+	FString CharacterName = NameTextBox->GetText().ToString();
+	if (CharacterName.Len() <= 0 || CharacterName.Len() > 10) return;
 
 	switch (CurrentIndex)
 	{
@@ -89,15 +91,22 @@ void UDUCharacterSelectWidget::OnConfirmClicked()
 		break;
 	}
 
+	APlayerController* PlayerController = UGameplayStatics::GetPlayerController(GetWorld(), 0);
 	UDUGameInstance* DUGameInstance = Cast<UDUGameInstance>(GetGameInstance());
+	ADUPlayerState* DUPlayerState = PlayerController->GetPlayerState<ADUPlayerState>();
 
 	if (DUGameInstance)
 	{
 		DUGameInstance->WeaponType = WeaponType;
 	}
 
+	if (DUPlayerState)
+	{
+		DUPlayerState->SetPlayerName(CharacterName);
+	}
 
-	UGameplayStatics::GetPlayerController(GetWorld(), 0)->SetInputMode(FInputModeGameOnly());
-	UGameplayStatics::OpenLevel(GetWorld(), FName("Lobby"));
+
+	PlayerController->SetInputMode(FInputModeGameOnly());
+	UGameplayStatics::OpenLevel(GetWorld(), FName("TestMap"));
 
 }

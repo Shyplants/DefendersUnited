@@ -2,4 +2,14 @@
 
 
 #include "DUGameInstance.h"
+/*
+void UDUGameInstance::SetPlayerName(const FString& InputPlayerName)
+{
+	PlayerName = InputPlayerName;
+}
 
+FString UDUGameInstance::GetPlayerName()
+{
+	return PlayerName;
+}
+*/
