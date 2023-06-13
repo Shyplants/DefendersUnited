@@ -16,5 +16,10 @@ class DEFENDERSUNITED_API ADULobbyGameMode : public AGameMode
 
 public:
 	virtual void PostLogin(APlayerController* NewPlayer) override;
-	
+
+private:
+	int NumberOfPlayers = 0;
+
+public:
+	FORCEINLINE int GetNumberOfPlayers() const { return NumberOfPlayers; }
 };

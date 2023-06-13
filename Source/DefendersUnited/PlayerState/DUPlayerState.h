@@ -31,6 +31,16 @@ private:
 	UPROPERTY()
 	class ADUPlayerController* Controller;
 
+	/*
+	UPROPERTY()
+	FString DUPlayerName;
+	*/
 	UPROPERTY(ReplicatedUsing = OnRep_Defeats)
 	int32 Defeats;
+
+/*
+public:
+	FORCEINLINE FString GetDUPlayerName() const { return DUPlayerName; }
+	void SetDUPlayerName(FString& PlayerName);
+*/
 };

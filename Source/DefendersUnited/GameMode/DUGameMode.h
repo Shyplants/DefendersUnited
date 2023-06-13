@@ -27,6 +27,11 @@ public:
 	virtual void RequestRemoveEnemy(class ADUEnemy* ElimmedEnemy);
 
 	UPROPERTY(EditDefaultsOnly)
+	float EnemySpawnTime = 5.f;
+
+	float EnemySpawnTimer;
+
+	UPROPERTY(EditDefaultsOnly)
 	float WarmupTime = 10.f;
 
 	UPROPERTY(EditDefaultsOnly)
@@ -40,6 +45,9 @@ public:
 protected:
 	virtual void BeginPlay() override;
 	virtual void OnMatchStateSet() override;
+
+private:
+	void SpawnEnemy();
 
 private:
 	float CountdownTime = 0.f;

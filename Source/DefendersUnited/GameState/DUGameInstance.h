@@ -16,16 +16,16 @@ class DEFENDERSUNITED_API UDUGameInstance : public UGameInstance
 	GENERATED_BODY()
 
 public:
-	EWeaponType WeaponType = EWeaponType::EWT_MAX;
+	EWeaponType WeaponType = EWeaponType::EWT_AssaultRifle;
 
-	/*
-	FString PlayerName;
+	UPROPERTY();
+	FString DUPlayerName;
 
 	UFUNCTION()
-	void SetPlayerName(const FString& InputPlayerName);
-	FString GetPlayerName();
-	*/
+	void SetDUPlayerName(const FString& PlayerName);
+	FString GetDUPlayerName();
+	
 
-	UDUGameInstance* GetInstance();
+	// UDUGameInstance* GetInstance();
 	
 };

@@ -18,6 +18,7 @@ namespace MatchState
 ADUGameMode::ADUGameMode()
 {
 	bDelayedStart = true;
+	EnemySpawnTimer = EnemySpawnTime;
 }
 
 void ADUGameMode::BeginPlay()
@@ -41,6 +42,12 @@ void ADUGameMode::Tick(float DeltaTime)
 	}
 	else if (MatchState == MatchState::InProgress)
 	{
+		EnemySpawnTimer -= GetWorld()->GetTimeSeconds();
+		if (EnemySpawnTimer <= 0.f)
+		{
+			SpawnEnemy();
+			EnemySpawnTimer = EnemySpawnTime;
+		}
 		CountdownTime = WarmupTime + MatchTime - GetWorld()->GetTimeSeconds() + LevelStartingTime;
 		if (CountdownTime <= 0.f)
 		{
@@ -69,6 +76,11 @@ void ADUGameMode::OnMatchStateSet()
 			DUPlayer->OnMatchStateSet(MatchState);
 		}
 	}
+}
+
+void ADUGameMode::SpawnEnemy()
+{
+
 }
 
 void ADUGameMode::PlayerEliminated(class ADUCharacter* ElimmedCharacter, class ADUPlayerController* VictimController, class ADUPlayerController* AttackerController)

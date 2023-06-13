@@ -55,6 +55,12 @@ void ADUPlayerState::AddToDefeats(int32 DefeatsAmount)
 		}
 	}
 }
+/*
+void ADUPlayerState::SetDUPlayerName(FString& PlayerName)
+{
+	DUPlayerName = PlayerName;
+}
+*/
 
 void ADUPlayerState::OnRep_Defeats()
 {

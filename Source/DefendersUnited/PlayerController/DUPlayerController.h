@@ -67,6 +67,7 @@ private:
 	UPROPERTY()
 	class ADUGameMode* DUGameMode;
 
+	float LobbyTime = 0.f;
 	float LevelStartingTime = 0.f;
 	float MatchTime = 0.f;
 	float WarmupTime = 0.f;

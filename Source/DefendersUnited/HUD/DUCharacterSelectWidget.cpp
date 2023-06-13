@@ -6,7 +6,6 @@
 #include "Animation/SkeletalMeshActor.h"
 #include "Kismet/GameplayStatics.h"
 #include "DefendersUnited/GameState/DUGameInstance.h"
-#include "DefendersUnited/PlayerState/DUPlayerState.h"
 #include "DefendersUnited/PlayerController/DUPlayerController.h"
 
 void UDUCharacterSelectWidget::NextCharacter(bool bForward)
@@ -69,8 +68,8 @@ void UDUCharacterSelectWidget::OnNextClicked()
 
 void UDUCharacterSelectWidget::OnConfirmClicked()
 {
-	FString CharacterName = NameTextBox->GetText().ToString();
-	if (CharacterName.Len() <= 0 || CharacterName.Len() > 10) return;
+	FString PlayerName = NameTextBox->GetText().ToString();
+	if (PlayerName.Len() <= 0 || PlayerName.Len() > 10) return;
 
 	switch (CurrentIndex)
 	{
@@ -93,20 +92,16 @@ void UDUCharacterSelectWidget::OnConfirmClicked()
 
 	APlayerController* PlayerController = UGameplayStatics::GetPlayerController(GetWorld(), 0);
 	UDUGameInstance* DUGameInstance = Cast<UDUGameInstance>(GetGameInstance());
-	ADUPlayerState* DUPlayerState = PlayerController->GetPlayerState<ADUPlayerState>();
 
 	if (DUGameInstance)
 	{
 		DUGameInstance->WeaponType = WeaponType;
+		DUGameInstance->SetDUPlayerName(PlayerName);
 	}
 
-	if (DUPlayerState)
-	{
-		DUPlayerState->SetPlayerName(CharacterName);
-	}
 
 
 	PlayerController->SetInputMode(FInputModeGameOnly());
-	UGameplayStatics::OpenLevel(GetWorld(), FName("TestMap"));
+	UGameplayStatics::OpenLevel(GetWorld(), FName("Lobby"));
 
 }

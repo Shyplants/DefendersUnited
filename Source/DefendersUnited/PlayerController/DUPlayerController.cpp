@@ -14,6 +14,7 @@
 #include "Kismet/GameplayStatics.h"
 #include "DefendersUnited/DUComponent/CombatComponent.h"
 #include "DefendersUnited/GameState/DUGameState.h"
+#include "DefendersUnited/GameState/DUGameInstance.h"
 
 void ADUPlayerController::BeginPlay()
 {
@@ -23,6 +24,14 @@ void ADUPlayerController::BeginPlay()
 	ServerCheckMatchState();
 
 	TeamId = FGenericTeamId(10);
+
+	ADUPlayerState* DUPlayerState = GetPlayerState<ADUPlayerState>();
+	UDUGameInstance* DUGameInstance = Cast<UDUGameInstance>(GetGameInstance());
+	if (DUPlayerState && DUGameInstance)
+	{
+		FString PlayerName = DUGameInstance->GetDUPlayerName();
+		DUPlayerState->SetPlayerName(PlayerName);
+	}
 }
 
 void ADUPlayerController::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const

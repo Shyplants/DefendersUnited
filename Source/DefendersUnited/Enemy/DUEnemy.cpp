@@ -35,20 +35,6 @@ ADUEnemy::ADUEnemy()
 
 	EnemyOverlayComponent = CreateDefaultSubobject<UWidgetComponent>(TEXT("EnemyOverlayComponent"));
 	EnemyOverlayComponent->SetupAttachment(RootComponent);
-	
-	/*
-	EnemyOverlayComponent = CreateDefaultSubobject<UWidgetComponent>(TEXT("EnemyOverlayComponent"));
-	EnemyOverlayComponent->SetupAttachment(RootComponent);
-	if (EnemyOverlayComponent)
-	{
-		UE_LOG(LogTemp, Warning, TEXT("EnemyOverlay Casted"));
-		EnemyOverlayComponent.WidgetCl
-		EnemyOverlay = EnemyOverlayComponent->GetWidgetClass();
-		UE_LOG(LogTemp, Warning, TEXT("EnemyOverlay State: %d"), EnemyOverlayComponent->GetWidgetClass()->IsValidLowLevel());
-		SetHUDHealth();
-	}
-
-	*/
 }
 
 void ADUEnemy::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
@@ -81,22 +67,10 @@ void ADUEnemy::BeginPlay()
 		
 		if (EnemyOverlayComponent)
 		{
-			
-			// EnemyOverlayComponent->AttachToComponent(GetRootComponent(), FAttachmentTransformRules::SnapToTargetIncludingScale);
 			EnemyOverlayComponent->SetWidget(EnemyOverlay);
-			// EnemyOverlayComponent->SetWorldLocation(FVector(0.f, 0.f, 134.f)); // 적 오브젝트 머리 위로 위치 조정
 			EnemyOverlayComponent->SetVisibility(true);
 		}
-
-
-		// EnemyOverlay->SetPositionInViewport(FVector2D(0, 5.f));
-		// EnemyOverlay->AddToViewport();
 	}
-	else
-	{
-		UE_LOG(LogTemp, Warning, TEXT("EnemyOverlay Not Casted!"));
-	}
-	
 }
 
 
@@ -104,18 +78,15 @@ void ADUEnemy::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
-	
 	ADUCharacter* DUCharacter = Cast<ADUCharacter>(UGameplayStatics::GetPlayerCharacter(this, 0));
 	FRotator LookAtRotator;
 
 	if (EnemyOverlayComponent && DUCharacter)
 	{
-		// UE_LOG(LogTemp, Warning, TEXT("EnemyHealthWidget && DUCharacter Valid"));
 		LookAtRotator = UKismetMathLibrary::FindLookAtRotation(EnemyOverlayComponent->GetComponentLocation(), DUCharacter->GetActorLocation());
 
 		EnemyOverlayComponent->SetWorldRotation(LookAtRotator);
 	}
-	
 }
 
 
@@ -123,21 +94,6 @@ void ADUEnemy::Tick(float DeltaTime)
 void ADUEnemy::Destroyed()
 {
 	Super::Destroyed();
-
-	/*
-	if (ElimBotComponent)
-	{
-		ElimBotComponent->DestroyComponent();
-	}
-
-	ADUGameMode* DUGameMode = Cast<ADUGameMode>(UGameplayStatics::GetGameMode(this));
-	bool bMatchNotInProgress = DUGameMode && DUGameMode->GetMatchState() != MatchState::InProgress;
-
-	if (Combat && Combat->EquippedWeapon && bMatchNotInProgress)
-	{
-		Combat->EquippedWeapon->Destroy();
-	}
-	*/
 }
 
 void ADUEnemy::SetMode(int InputMode)
@@ -150,7 +106,7 @@ void ADUEnemy::ReceiveDamage(AActor* DamageActor, float Damage, const UDamageTyp
 	if (Health == 0.0f) return;
 
 	Health = FMath::Clamp(Health - Damage, 0.f, MaxHealth);
-	UE_LOG(LogTemp, Warning, TEXT("Health: %f \n"), Health);
+	// UE_LOG(LogTemp, Warning, TEXT("Health: %f \n"), Health);
 	SetHUDHealth();
 	// PlayHitReactMontage();
 
@@ -205,25 +161,6 @@ void ADUEnemy::MulticastElim_Implementation()
 {
 	bElimmed = true;
 	PlayElimMontage();
-
-	/*
-	// Start dissolve effect
-	if (DissolveMaterialInstances.Num() > 0)
-	{
-		int index = 0;
-		for (UMaterialInstance* DissolveMaterialInstance : DissolveMaterialInstances)
-		{
-			UMaterialInstanceDynamic* DynamicDissolveMaterialInstance = UMaterialInstanceDynamic::Create(DissolveMaterialInstance, this);
-			GetMesh()->SetMaterial(index, DynamicDissolveMaterialInstance);
-			DynamicDissolveMaterialInstance->SetScalarParameterValue(TEXT("Dissolve"), 0.55f);
-			DynamicDissolveMaterialInstance->SetScalarParameterValue(TEXT("Glow"), 200.f);
-			DynamicDissolveMaterialInstances.Add(DynamicDissolveMaterialInstance);
-
-			index++;
-		}
-	}
-	StartDissolve();
-	*/
 
 	// Disable character movement
 	GetCharacterMovement()->DisableMovement();

@@ -65,27 +65,7 @@ ADUCharacter::ADUCharacter()
 	PerceptionStimuliSource = CreateDefaultSubobject<UAIPerceptionStimuliSourceComponent>(TEXT("PerceptionStimuliSource"));
 	PerceptionStimuliSource->RegisterForSense(UAISense_Sight::StaticClass());  // AISense_Sight µî·Ï
 
-	// AR // RL // SR // SMG	
-	ConstructorHelpers::FObjectFinder<UBlueprint> WeaponItem0(TEXT("/Script/Engine.Blueprint'/Game/Blueprints/Weapon/BP_AssaultRifle.BP_AssaultRifle'"));
-	if (WeaponItem0.Object)
-	{
-		WeaponBlueprint.Emplace((UClass*)WeaponItem0.Object->GeneratedClass);
-	}
-	ConstructorHelpers::FObjectFinder<UBlueprint> WeaponItem1(TEXT("/Script/Engine.Blueprint'/Game/Blueprints/Weapon/BP_RocketLauncher.BP_RocketLauncher'"));
-	if (WeaponItem1.Object)
-	{
-		WeaponBlueprint.Emplace((UClass*)WeaponItem1.Object->GeneratedClass);
-	}
-	ConstructorHelpers::FObjectFinder<UBlueprint> WeaponItem2(TEXT("/Script/Engine.Blueprint'/Game/Blueprints/Weapon/BP_SniperRifle.BP_SniperRifle'"));
-	if (WeaponItem2.Object)
-	{
-		WeaponBlueprint.Emplace((UClass*)WeaponItem2.Object->GeneratedClass);
-	}
-	ConstructorHelpers::FObjectFinder<UBlueprint> WeaponItem3(TEXT("/Script/Engine.Blueprint'/Game/Blueprints/Weapon/BP_SubMaChineGun.BP_SubMaChineGun'"));
-	if (WeaponItem3.Object)
-	{
-		WeaponBlueprint.Emplace((UClass*)WeaponItem3.Object->GeneratedClass);
-	}
+	
 }
 
 void ADUCharacter::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
@@ -228,15 +208,24 @@ void ADUCharacter::BeginPlay()
 	if (HasAuthority())
 	{
 		OnTakeAnyDamage.AddDynamic(this, &ADUCharacter::ReceiveDamage);
+
+		// AR // RL // SR // SMG	
+		UDUGameInstance* DUGameInstance = Cast<UDUGameInstance>(GetGameInstance());
+		if (DUGameInstance)
+		{
+			WeaponType = DUGameInstance->WeaponType;
+
+			FActorSpawnParameters SpawnParams;
+			SpawnParams.Owner = this;
+			FRotator rotator;
+			FVector  SpawnLocation = GetActorLocation();
+			SpawnLocation.Z -= 90.0f;
+
+			// UE_LOG(LogTemp, Warning, TEXT("Spawn"));
+			OverlappingWeapon = Cast<AWeapon>(GetWorld()->SpawnActor(DefaultWeaponClass[(int)WeaponType]));
+			EquipButtonPressed();
+		}
 	}
-
-	UDUGameInstance* DUGameInstance = Cast<UDUGameInstance>(GetGameInstance());
-
-	if (DUGameInstance)
-	{
-		WeaponType = DUGameInstance->WeaponType;
-	}
-
 }
 
 void ADUCharacter::Tick(float DeltaTime)
@@ -247,6 +236,7 @@ void ADUCharacter::Tick(float DeltaTime)
 	HideCameraIfCharacterClose();
 	PollInit();
 
+	/*
 	if (!bWeaponSpawn)
 	{
 		UWorld* world = GetWorld();
@@ -280,7 +270,7 @@ void ADUCharacter::Tick(float DeltaTime)
 				FVector  SpawnLocation = GetActorLocation(); // FVector3d(100.0f, -2500.0f, -1300.0f);
 				SpawnLocation.Z -= 90.0f;
 
-				UE_LOG(LogTemp, Warning, TEXT("Spawn"));
+				// UE_LOG(LogTemp, Warning, TEXT("Spawn"));
 				OverlappingWeapon = Cast<AWeapon>(world->SpawnActor<AActor>(WeaponBlueprint[tmp], SpawnLocation, rotator, SpawnParams));
 
 				EquipButtonPressed();
@@ -289,6 +279,7 @@ void ADUCharacter::Tick(float DeltaTime)
 			}
 		}
 	}
+	*/
 }
 
 void ADUCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
