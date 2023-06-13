@@ -9,6 +9,7 @@
 #include "Sound/SoundCue.h"
 #include "Kismet/KismetMathLibrary.h"
 #include "WeaponTypes.h"
+#include "DefendersUnited/Enemy/DUEnemy.h"
 
 #include "DrawDebugHelpers.h"
 
@@ -30,10 +31,11 @@ void AHitScanWeapon::Fire(const FVector& HitTarget)
 		WeaponTraceHit(Start, HitTarget, FireHit);
 
 		// ADUCharacter* DUCharacter = Cast<ADUCharacter>(FireHit.GetActor());
-		if (FireHit.GetActor() && HasAuthority() && InstigatorController)
+		ADUEnemy* DUEnemy = Cast<ADUEnemy>(FireHit.GetActor());
+		if (DUEnemy && HasAuthority() && InstigatorController)
 		{
 			UGameplayStatics::ApplyDamage(
-				FireHit.GetActor(),
+				DUEnemy,
 				Damage,
 				InstigatorController,
 				this,

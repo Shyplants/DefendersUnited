@@ -7,6 +7,9 @@
 #include "Kismet/GameplayStatics.h"
 #include "DefendersUnited/GameState/DUGameInstance.h"
 #include "DefendersUnited/PlayerController/DUPlayerController.h"
+#include "DefendersUnited/GameMode/DUSelectGameMode.h"
+#include "MultiplayerSessionsSubsystem.h"
+
 
 void UDUCharacterSelectWidget::NextCharacter(bool bForward)
 {
@@ -99,9 +102,42 @@ void UDUCharacterSelectWidget::OnConfirmClicked()
 		DUGameInstance->SetDUPlayerName(PlayerName);
 	}
 
-
+	//UGameplayStatics::OpenLevel(GetWorld(), FName("Lobby"));
 
 	PlayerController->SetInputMode(FInputModeGameOnly());
-	UGameplayStatics::OpenLevel(GetWorld(), FName("Lobby"));
+	if (GetWorld())
+	{
+		if (GetWorld()->IsServer())
+		{
+			UGameplayStatics::OpenLevel(GetWorld(), FName("Lobby"));
+			UE_LOG(LogTemp, Warning, TEXT("Server"));
+		}
+		else
+		{
+			UMultiplayerSessionsSubsystem* Subsystem = GetGameInstance()->GetSubsystem<UMultiplayerSessionsSubsystem>();
+			if (Subsystem)
+			{
+				Subsystem->FindSessions(10000);
+			}
+		}
+	}
+
+	/*
+	ADUSelectGameMode* DUSelectGameMode = Cast<ADUSelectGameMode>(UGameplayStatics::GetGameMode(GetWorld()));
+	if (DUSelectGameMode)
+	{
+		DUSelectGameMode->OnConfirmClicked();
+	}
+	*/
+	/*
+	UGameInstance* GameInstance = GetWorld()->GetGameInstance();
+	UMultiplayerSessionsSubsystem* Subsystem = GameInstance->GetSubsystem<UMultiplayerSessionsSubsystem>();
+	
+	if (MultiplayerSessionsSubsystem)
+	{
+		MultiplayerSessionsSubsystem->FindSessions(10000);
+	}
+	*/
+	
 
 }

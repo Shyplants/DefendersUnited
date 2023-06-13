@@ -16,7 +16,7 @@ class DEFENDERSUNITED_API UDUGameInstance : public UGameInstance
 	GENERATED_BODY()
 
 public:
-	EWeaponType WeaponType = EWeaponType::EWT_AssaultRifle;
+	EWeaponType WeaponType = EWeaponType::EWT_SniperRifle;
 
 	UPROPERTY();
 	FString DUPlayerName;
