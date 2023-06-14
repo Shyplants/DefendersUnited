@@ -10,22 +10,29 @@
 /**
  * 
  */
+
+USTRUCT(BlueprintType)
+struct FPlayerData
+{
+	GENERATED_BODY()
+
+public:
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	FString DUPlayerName;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	EWeaponType WeaponType;
+};
+
 UCLASS()
 class DEFENDERSUNITED_API UDUGameInstance : public UGameInstance
 {
 	GENERATED_BODY()
 
 public:
-	EWeaponType WeaponType = EWeaponType::EWT_MAX;
-
-	UPROPERTY();
-	FString DUPlayerName;
-
-	UFUNCTION()
-	void SetDUPlayerName(const FString& PlayerName);
-	FString GetDUPlayerName();
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "DUGame Instance")
+	TArray<FPlayerData> PlayerDataArray;
 	
-
 	// UDUGameInstance* GetInstance();
 	
 };

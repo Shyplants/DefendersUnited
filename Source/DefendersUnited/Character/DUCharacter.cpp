@@ -97,8 +97,9 @@ void ADUCharacter::Elim()
 {
 	if (Combat&& Combat->EquippedWeapon)
 	{
-		Combat->EquippedWeapon->Dropped();
+		Combat->EquippedWeapon->Destroy();
 	}
+
 	MulticastElim();
 	GetWorldTimerManager().SetTimer(
 		ElimTimer,
@@ -203,11 +204,13 @@ void ADUCharacter::ElimTimerFinished()
 void ADUCharacter::EquipWeapon()
 {
 	// AR // RL // SR // SMG	
-	UDUGameInstance* DUGameInstance = Cast<UDUGameInstance>(GetGameInstance());
-	if (DUGameInstance)
+	UE_LOG(LogTemp, Warning, TEXT("EquipWeapon Called"));
+	if (DUPlayerState)
 	{
-		WeaponType = DUGameInstance->WeaponType;
+		WeaponType = DUPlayerState->GetWeaponType();
+		UE_LOG(LogTemp, Warning, TEXT("WeaponType: %d"), (int)WeaponType);
 		if (WeaponType == EWeaponType::EWT_MAX) return;
+
 
 		FActorSpawnParameters SpawnParams;
 		SpawnParams.Owner = this;
@@ -219,15 +222,23 @@ void ADUCharacter::EquipWeapon()
 		OverlappingWeapon = Cast<AWeapon>(GetWorld()->SpawnActor(DefaultWeaponClass[(int)WeaponType]));
 		EquipButtonPressed();
 	}
+	else
+	{
+		UE_LOG(LogTemp, Warning, TEXT("DUPlayerState Not Valid"));
+	}
 }
 
 void ADUCharacter::BeginPlay()
 {
 	Super::BeginPlay();
-
+	UE_LOG(LogTemp, Warning, TEXT("BeginPlay"));
 	UpdateHUDHealth();
+
+
+	DUPlayerState = GetPlayerState<ADUPlayerState>();
 	if (HasAuthority())
 	{
+		UE_LOG(LogTemp, Warning, TEXT("HasAuthority"));
 		OnTakeAnyDamage.AddDynamic(this, &ADUCharacter::ReceiveDamage);
 		EquipWeapon();
 	}
@@ -355,8 +366,8 @@ void ADUCharacter::ReceiveDamage(AActor* DamageActor, float Damage, const UDamag
 		if (DUGameMode)
 		{
 			DUPlayerController = DUPlayerController == nullptr ? Cast<ADUPlayerController>(Controller) : DUPlayerController;
-			ADUPlayerController* AttackerController = Cast<ADUPlayerController>(InstigatorController);
-			DUGameMode->PlayerEliminated(this, DUPlayerController, AttackerController);
+			// ADUPlayerController* AttackerController = Cast<ADUPlayerController>(InstigatorController);
+			DUGameMode->PlayerEliminated(this, DUPlayerController);
 		}
 	}
 }
@@ -600,8 +611,24 @@ void ADUCharacter::PollInit()
 		DUPlayerState = GetPlayerState<ADUPlayerState>();
 		if (DUPlayerState)
 		{
+			UE_LOG(LogTemp, Warning, TEXT("DUPlayerState Valid"));
 			DUPlayerState->AddToScore(0.f);
 			DUPlayerState->AddToDefeats(0);
+
+			WeaponType = DUPlayerState->GetWeaponType();
+			UE_LOG(LogTemp, Warning, TEXT("WeaponType: %d"), (int)WeaponType);
+			if (WeaponType == EWeaponType::EWT_MAX) return;
+
+
+			FActorSpawnParameters SpawnParams;
+			SpawnParams.Owner = this;
+			FRotator rotator;
+			FVector  SpawnLocation = GetActorLocation();
+			SpawnLocation.Z -= 90.0f;
+
+			// UE_LOG(LogTemp, Warning, TEXT("Spawn"));
+			OverlappingWeapon = Cast<AWeapon>(GetWorld()->SpawnActor(DefaultWeaponClass[(int)WeaponType]));
+			EquipButtonPressed();
 		}
 	}
 }

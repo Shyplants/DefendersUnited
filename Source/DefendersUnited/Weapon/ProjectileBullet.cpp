@@ -5,6 +5,7 @@
 #include "Kismet/GameplayStatics.h"
 #include "GameFramework/Character.h"
 #include "GameFramework/ProjectileMovementComponent.h"
+#include "DefendersUnited/Enemy/DUEnemy.h"
 
 AProjectileBullet::AProjectileBullet()
 {
@@ -16,12 +17,13 @@ AProjectileBullet::AProjectileBullet()
 void AProjectileBullet::OnHit(UPrimitiveComponent* HitComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit)
 {
 	ACharacter* OwnerCharacter = Cast<ACharacter>(GetOwner());
-	if (OwnerCharacter)
+	ADUEnemy* DUEnemy = Cast<ADUEnemy>(Hit.GetActor());
+	if (OwnerCharacter && DUEnemy)
 	{
 		AController* OwnerController = OwnerCharacter->Controller;
 		if (OwnerController)
 		{
-			UGameplayStatics::ApplyDamage(OtherActor, Damage, OwnerController, this, UDamageType::StaticClass());
+			UGameplayStatics::ApplyDamage(DUEnemy, Damage, OwnerController, this, UDamageType::StaticClass());
 		}
 	}
 	

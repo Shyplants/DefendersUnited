@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/PlayerState.h"
+#include "DefendersUnited/Weapon/WeaponTypes.h"
 #include "DUPlayerState.generated.h"
 
 /**
@@ -30,13 +31,24 @@ private:
 	class ADUCharacter* Character;
 	UPROPERTY()
 	class ADUPlayerController* Controller;
+	UPROPERTY()
+	class ADULobbyController* LobbyController;
 
-	/*
+	
 	UPROPERTY()
 	FString DUPlayerName;
-	*/
+
+	UPROPERTY()
+	EWeaponType WeaponType = EWeaponType::EWT_AssaultRifle;
+	
 	UPROPERTY(ReplicatedUsing = OnRep_Defeats)
 	int32 Defeats;
+
+public:
+	void SetDUPlayerName(FString PlayerName);
+	void SetWeaponType(EWeaponType weaponType);
+	FString GetDUPlayerName();
+	EWeaponType GetWeaponType();
 
 /*
 public:

@@ -4,8 +4,10 @@
 #include "DULobbyController.h"
 #include "Blueprint/UserWidget.h"
 #include "Components/SkeletalMeshComponent.h"
-#include "DefendersUnited/GameState/DUGameInstance.h"
+#include "DefendersUnited/PlayerState/DUPlayerState.h"
 #include "DefendersUnited/Character/DUCharacter.h"
+#include "DefendersUnited/GameMode/DULobbyGameMode.h"
+#include "Kismet/GameplayStatics.h"
 
 
 void ADULobbyController::BeginPlay()
@@ -58,18 +60,22 @@ void ADULobbyController::ServerOnConfirmClicked_Implementation(const FString& Pl
 {
 	if (GetWorld()->IsServer())
 	{
-		UDUGameInstance* DUGameInstance = Cast<UDUGameInstance>(GetGameInstance());
+		ADUPlayerState* DUPlayerState = GetPlayerState<ADUPlayerState>();
 		ADUCharacter* DUCharacter = Cast<ADUCharacter>(GetPawn());
-		if (DUGameInstance)
+		ADULobbyGameMode* DULobbyGameMode = Cast<ADULobbyGameMode>(UGameplayStatics::GetGameMode(this));
+
+		if (DUPlayerState)
 		{
-			UE_LOG(LogTemp, Warning, TEXT("WeaponType: %d"), (int)WeaponType);
-			UE_LOG(LogTemp, Warning, TEXT("PlayerName: %s"), *PlayerName);
-			DUGameInstance->WeaponType = WeaponType;
-			DUGameInstance->SetDUPlayerName(PlayerName);
+			DUPlayerState->SetPlayerName(PlayerName);
+			DUPlayerState->SetWeaponType(WeaponType);
 		}
 		if (DUCharacter)
 		{
 			DUCharacter->EquipWeapon();
+		}
+		if (DULobbyGameMode)
+		{
+			DULobbyGameMode->AddPlayer();
 		}
 	}
 }

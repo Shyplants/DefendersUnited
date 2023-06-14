@@ -9,6 +9,7 @@
 #include "GameFramework/PlayerController.h"
 #include "GameFramework/HUD.h"
 #include "Components/CapsuleComponent.h"
+#include "Components/BoxComponent.h"
 #include "Kismet/GameplayStatics.h"
 #include "Kismet/KismetMathLibrary.h"
 #include "Engine/TargetPoint.h"
@@ -35,6 +36,9 @@ ADUEnemy::ADUEnemy()
 
 	EnemyOverlayComponent = CreateDefaultSubobject<UWidgetComponent>(TEXT("EnemyOverlayComponent"));
 	EnemyOverlayComponent->SetupAttachment(RootComponent);
+
+	DamageCollision = CreateDefaultSubobject<UBoxComponent>(TEXT("Damage Collision"));
+	DamageCollision->SetupAttachment(RootComponent);
 }
 
 void ADUEnemy::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
@@ -71,6 +75,8 @@ void ADUEnemy::BeginPlay()
 			EnemyOverlayComponent->SetVisibility(true);
 		}
 	}
+
+	DamageCollision->OnComponentBeginOverlap.AddDynamic(this, &ADUEnemy::OnHit);
 }
 
 
@@ -89,7 +95,17 @@ void ADUEnemy::Tick(float DeltaTime)
 	}
 }
 
-
+void ADUEnemy::OnHit(UPrimitiveComponent* HitComp, AActor* OtherActor,
+	UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& Hit)
+{
+	ADUCharacter* DUCharacter = Cast<ADUCharacter>(Hit.GetActor());
+	AController* OwnerController = GetController();
+	if (OwnerController && DUCharacter)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("ApplyDamage Call"));
+		UGameplayStatics::ApplyDamage(DUCharacter, 5.f, OwnerController, this, UDamageType::StaticClass());
+	}
+}
 
 void ADUEnemy::Destroyed()
 {

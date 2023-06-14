@@ -15,11 +15,14 @@ class DEFENDERSUNITED_API ADULobbyGameMode : public AGameMode
 	GENERATED_BODY()
 
 public:
+	virtual void Tick(float DeltaTime) override;
 	virtual void PostLogin(APlayerController* NewPlayer) override;
 
 private:
 	int NumberOfPlayers = 0;
+	float waitingTimer = 0.f;
 
 public:
 	FORCEINLINE int GetNumberOfPlayers() const { return NumberOfPlayers; }
+	void AddPlayer();
 };

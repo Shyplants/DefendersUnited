@@ -27,11 +27,6 @@ void ADUPlayerController::BeginPlay()
 
 	ADUPlayerState* DUPlayerState = GetPlayerState<ADUPlayerState>();
 	UDUGameInstance* DUGameInstance = Cast<UDUGameInstance>(GetGameInstance());
-	if (DUPlayerState && DUGameInstance)
-	{
-		FString PlayerName = DUGameInstance->GetDUPlayerName();
-		DUPlayerState->SetPlayerName(PlayerName);
-	}
 }
 
 void ADUPlayerController::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const

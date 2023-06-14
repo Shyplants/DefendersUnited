@@ -4,6 +4,7 @@
 #include "DUPlayerState.h"
 #include "DefendersUnited/Character/DUCharacter.h"
 #include "DefendersUnited/PlayerController/DUPlayerController.h"
+#include "DefendersUnited/PlayerController/DULobbyController.h"
 #include "Net/UnrealNetwork.h"
 
 void ADUPlayerState::GetLifetimeReplicatedProps(TArray< FLifetimeProperty >& OutLifetimeProps) const
@@ -55,12 +56,6 @@ void ADUPlayerState::AddToDefeats(int32 DefeatsAmount)
 		}
 	}
 }
-/*
-void ADUPlayerState::SetDUPlayerName(FString& PlayerName)
-{
-	DUPlayerName = PlayerName;
-}
-*/
 
 void ADUPlayerState::OnRep_Defeats()
 {
@@ -73,4 +68,24 @@ void ADUPlayerState::OnRep_Defeats()
 			Controller->SetHUDDefeats(Defeats);
 		}
 	}
+}
+
+void ADUPlayerState::SetDUPlayerName(FString PlayerName)
+{
+	DUPlayerName = PlayerName;
+}
+
+void ADUPlayerState::SetWeaponType(EWeaponType weaponType)
+{
+	WeaponType = weaponType;
+}
+
+FString ADUPlayerState::GetDUPlayerName()
+{
+	return DUPlayerName;
+}
+
+EWeaponType ADUPlayerState::GetWeaponType()
+{
+	return WeaponType;
 }

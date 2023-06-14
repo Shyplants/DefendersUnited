@@ -18,6 +18,11 @@ public:
 	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
 	virtual void Destroyed() override;
 
+	UFUNCTION()
+	void OnHit(UPrimitiveComponent* HitComp, AActor* OtherActor,
+		UPrimitiveComponent* OtherComp, int32 OtherBodyIndex,
+		bool bFromSweep, const FHitResult& Hit);
+
 	void Elim();
 	UFUNCTION(NetMulticast, Reliable)
 	void MulticastElim();
@@ -66,6 +71,9 @@ private:
 
 	UPROPERTY(EditAnywhere, Category = Combat)
 	class UAnimMontage* ElimMontage;
+
+	UPROPERTY(EditAnywhere, Category = Combat)
+	class UBoxComponent* DamageCollision;
 
 	bool bElimmed = false;
 

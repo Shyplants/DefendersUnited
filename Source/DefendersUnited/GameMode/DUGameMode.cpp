@@ -83,20 +83,12 @@ void ADUGameMode::SpawnEnemy()
 
 }
 
-void ADUGameMode::PlayerEliminated(class ADUCharacter* ElimmedCharacter, class ADUPlayerController* VictimController, class ADUPlayerController* AttackerController)
+void ADUGameMode::PlayerEliminated(class ADUCharacter* ElimmedCharacter, class ADUPlayerController* VictimController)
 {
-	if (AttackerController == nullptr || AttackerController->PlayerState == nullptr) return;
 	if (VictimController == nullptr || VictimController->PlayerState == nullptr) return;
-	ADUPlayerState* AttackerPlayerState = AttackerController ? Cast<ADUPlayerState>(AttackerController->PlayerState) : nullptr;
 	ADUPlayerState* VictimPlayerState = VictimController ? Cast<ADUPlayerState>(VictimController->PlayerState) : nullptr;
 
 	ADUGameState* DUGameState = GetGameState<ADUGameState>();
-
-	if (AttackerPlayerState && AttackerPlayerState != VictimPlayerState && DUGameState)
-	{
-		AttackerPlayerState->AddToScore(1.f);
-		DUGameState->UpdateTopScore(AttackerPlayerState);
-	}
 	if (VictimPlayerState)
 	{
 		VictimPlayerState->AddToDefeats(1);
