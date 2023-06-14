@@ -32,8 +32,6 @@ protected:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Character)
 	int32 MaxIndex;
 
-	TWeakObjectPtr<USkeletalMeshComponent> TargetComponent;
-
 	UPROPERTY()
 	class UButton* PrevButton;
 
@@ -46,6 +44,21 @@ protected:
 	UPROPERTY()
 	class UButton* ConfirmButton;
 
+	UPROPERTY()
+	class UImage* RifleImage;
+
+	UPROPERTY()
+	class UImage* RocketImage;
+
+	UPROPERTY()
+	class UImage* SniperImage;
+
+	UPROPERTY()
+	class UImage* SMGImage;
+
+	UPROPERTY()
+	TArray<class UImage*> WeaponImages;
+
 private:
 	UFUNCTION()
 	void OnPrevClicked();
@@ -55,6 +68,4 @@ private:
 
 	UFUNCTION()
 	void OnConfirmClicked();
-
-	TArray<USkeletalMesh*> SkeletalMeshArray;
 };

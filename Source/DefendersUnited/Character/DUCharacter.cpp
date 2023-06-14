@@ -200,6 +200,27 @@ void ADUCharacter::ElimTimerFinished()
 	}
 }
 
+void ADUCharacter::EquipWeapon()
+{
+	// AR // RL // SR // SMG	
+	UDUGameInstance* DUGameInstance = Cast<UDUGameInstance>(GetGameInstance());
+	if (DUGameInstance)
+	{
+		WeaponType = DUGameInstance->WeaponType;
+		if (WeaponType == EWeaponType::EWT_MAX) return;
+
+		FActorSpawnParameters SpawnParams;
+		SpawnParams.Owner = this;
+		FRotator rotator;
+		FVector  SpawnLocation = GetActorLocation();
+		SpawnLocation.Z -= 90.0f;
+
+		// UE_LOG(LogTemp, Warning, TEXT("Spawn"));
+		OverlappingWeapon = Cast<AWeapon>(GetWorld()->SpawnActor(DefaultWeaponClass[(int)WeaponType]));
+		EquipButtonPressed();
+	}
+}
+
 void ADUCharacter::BeginPlay()
 {
 	Super::BeginPlay();
@@ -208,23 +229,7 @@ void ADUCharacter::BeginPlay()
 	if (HasAuthority())
 	{
 		OnTakeAnyDamage.AddDynamic(this, &ADUCharacter::ReceiveDamage);
-
-		// AR // RL // SR // SMG	
-		UDUGameInstance* DUGameInstance = Cast<UDUGameInstance>(GetGameInstance());
-		if (DUGameInstance)
-		{
-			WeaponType = DUGameInstance->WeaponType;
-
-			FActorSpawnParameters SpawnParams;
-			SpawnParams.Owner = this;
-			FRotator rotator;
-			FVector  SpawnLocation = GetActorLocation();
-			SpawnLocation.Z -= 90.0f;
-
-			// UE_LOG(LogTemp, Warning, TEXT("Spawn"));
-			OverlappingWeapon = Cast<AWeapon>(GetWorld()->SpawnActor(DefaultWeaponClass[(int)WeaponType]));
-			EquipButtonPressed();
-		}
+		EquipWeapon();
 	}
 }
 

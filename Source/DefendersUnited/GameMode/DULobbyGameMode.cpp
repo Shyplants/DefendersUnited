@@ -14,7 +14,7 @@ void ADULobbyGameMode::PostLogin(APlayerController* NewPlayer)
 			if (DUGameInstance)
 			{
 				const FString PlayerName = DUGameInstance->GetDUPlayerName();
-				UE_LOG(LogTemp, Warning, TEXT("Lobby->CharacterName: %s"), *PlayerName);
+				// UE_LOG(LogTemp, Warning, TEXT("Lobby->CharacterName: %s"), *PlayerName);
 
 				GEngine->AddOnScreenDebugMessage(
 					-1,
