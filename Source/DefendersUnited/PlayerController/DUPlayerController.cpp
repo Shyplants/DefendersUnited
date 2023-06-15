@@ -88,10 +88,10 @@ void ADUPlayerController::OnPossess(APawn* InPawn)
 	if (DUCharacter)
 	{
 		SetHUDHealth(DUCharacter->GetHealth(), DUCharacter->GetMaxHealth());
-		/*
+		
 		DUCharacter->WeaponType = GetWeaponType();
 		DUCharacter->EquipWeapon();
-		*/
+		
 	}
 }
 
@@ -311,6 +311,7 @@ void ADUPlayerController::OnMatchStateSet(FName State)
 	{
 		HandleMatchHasStarted();
 
+		/*
 		ADUCharacter* DUCharacter = Cast<ADUCharacter>(GetPawn());
 		UDUGameInstance* DUGameInstance = Cast<UDUGameInstance>(GetGameInstance());
 		if (DUGameInstance)
@@ -320,9 +321,9 @@ void ADUPlayerController::OnMatchStateSet(FName State)
 		if (DUCharacter)
 		{
 			DUCharacter->WeaponType = WeaponType;
-			DUCharacter->EquipWeapon();
+			DUCharacter->EquipButtonPressed();
 		}
-		
+		*/
 	}
 	else if (MatchState == MatchState::Cooldown)
 	{

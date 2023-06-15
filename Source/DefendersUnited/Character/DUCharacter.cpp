@@ -25,6 +25,7 @@
 #include "Perception/AISense_Sight.h"
 #include "DefendersUnited/GameState/DUGameInstance.h"
 #include "DefendersUnited/GameState/DUGameState.h"
+#include "DefendersUnited/Weapon/ProjectileWeapon.h"
 
 // Sets default values
 ADUCharacter::ADUCharacter()
@@ -320,7 +321,7 @@ void ADUCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCompone
 	PlayerInputComponent->BindAxis("Turn", this, &ADUCharacter::Turn);
 	PlayerInputComponent->BindAxis("LookUp", this, &ADUCharacter::LookUp);
 
-	//PlayerInputComponent->BindAction("Equip", IE_Pressed, this, &ADUCharacter::EquipButtonPressed);
+	PlayerInputComponent->BindAction("Equip", IE_Pressed, this, &ADUCharacter::EquipButtonPressed);
 	PlayerInputComponent->BindAction("Crouch", IE_Pressed, this, &ADUCharacter::CrouchButtonPressed);
 	PlayerInputComponent->BindAction("Aim", IE_Pressed, this, &ADUCharacter::AimButtonPressed);
 	PlayerInputComponent->BindAction("Aim", IE_Released, this, &ADUCharacter::AimButtonReleased);
@@ -417,11 +418,16 @@ void ADUCharacter::LookUp(float Value)
 
 void ADUCharacter::EquipButtonPressed()
 {
-	if (bDisableGameplay) return;
+	if (bDisableGameplay || IsWeaponEquipped()) return;
 	if (Combat)
 	{
 		if (HasAuthority())
 		{
+			DUPlayerController = DUPlayerController == nullptr ? Cast<ADUPlayerController>(Controller) : DUPlayerController;
+			if (DUPlayerController)
+			{
+				DUPlayerController->SetWeaponType(OverlappingWeapon->GetWeaponType());
+			}
 			Combat->EquipWeapon(OverlappingWeapon);
 		}
 		else
@@ -435,6 +441,11 @@ void ADUCharacter::ServerEquipButtonPressed_Implementation()
 {
 	if (Combat)
 	{
+		DUPlayerController = DUPlayerController == nullptr ? Cast<ADUPlayerController>(Controller) : DUPlayerController;
+		if (DUPlayerController)
+		{
+			DUPlayerController->SetWeaponType(OverlappingWeapon->GetWeaponType());
+		}
 		Combat->EquipWeapon(OverlappingWeapon);
 	}
 }

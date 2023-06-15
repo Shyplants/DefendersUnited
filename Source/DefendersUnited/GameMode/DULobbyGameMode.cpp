@@ -36,7 +36,7 @@ void ADULobbyGameMode::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
-	if (NumberOfPlayers == 2)
+	if (NumberOfPlayers == 3)
 	{
 		waitingTimer += DeltaTime;
 		if (waitingTimer > 1.f)
