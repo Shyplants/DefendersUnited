@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Character.h"
+#include "GameFramework/Controller.h"
 #include "DefendersUnited/DUTypes/TurningInPlace.h"
 #include "DUEnemy.generated.h"
 
@@ -14,6 +15,8 @@ class DEFENDERSUNITED_API ADUEnemy : public ACharacter
 	
 public:
 	ADUEnemy();
+	virtual void BeginPlay() override;
+	//virtual void PossessedBy(AController* Controller);
 	virtual void Tick(float DeltaTime) override;
 	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
 	virtual void Destroyed() override;
@@ -33,8 +36,6 @@ public:
 	void SetHUDHealth();
 
 protected:
-	virtual void BeginPlay() override;
-
 	UFUNCTION()
 	void ReceiveDamage(AActor* DamageActor, float Damage, const UDamageType* DamageType, class AController* InstigatorController, AActor* DamageCauser);
 
@@ -48,11 +49,16 @@ private:
 	UPROPERTY()
 	class UEnemyOverlay* EnemyOverlay;
 
+	/*
 	UPROPERTY(EditAnywhere, Category = "AI", meta = (AllowPrivateAccess = "true"))
 	class ATargetPoint* TargetPoint;
-	
+	*/
+
 	UPROPERTY(ReplicatedUsing = OnRep_Mode, VisibleAnywhere, Category = "AI")
 	int Mode = 0;
+
+	UPROPERTY()
+	FVector TargetPointLocation;
 
 	UFUNCTION()
 	void OnRep_Mode();
@@ -83,7 +89,6 @@ private:
 	float ElimDelay = 2.f;
 
 	void ElimTimerFinished();
-	
 public:
 	UFUNCTION(BlueprintCallable, Category = "AI")
 	void SetMode(int InputMode);

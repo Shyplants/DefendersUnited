@@ -36,7 +36,7 @@ public:
 	void ShowSniperScopeWidget(bool bShowScope);
 
 	UPROPERTY(VisibleAnywhere)
-	EWeaponType WeaponType;
+	EWeaponType WeaponType = EWeaponType::EWT_MAX;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Weapon")
 	TSubclassOf<class AWeapon> DefaultWeaponClass[4];  // 무기의 클래스 타입을 저장하는 변수

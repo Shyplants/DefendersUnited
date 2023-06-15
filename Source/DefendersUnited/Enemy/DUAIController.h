@@ -19,6 +19,7 @@ class DEFENDERSUNITED_API ADUAIController : public AAIController
 
 public:
 	ADUAIController();
+	virtual void BeginPlay() override;
 
 	ETeamAttitude::Type GetTeamAttitudeTowards(const AActor& Other) const override;
 
@@ -26,7 +27,7 @@ public:
 	void OnPlayerDetected(const TArray<AActor*>& DetectedPawn);
 
 protected:
-	virtual void BeginPlay() override;
+	
 	virtual void OnPossess(APawn* InPawn) override;
 
 	UPROPERTY(EditAnywhere, Category = AI)

@@ -23,6 +23,10 @@ public:
 	virtual void OnRep_Score() override;
 	UFUNCTION()
 	virtual void OnRep_Defeats();
+	/*
+	UFUNCTION()
+	virtual void OnRep_WeaponType();
+	*/
 
 	void AddToScore(float ScoreAmount);
 	void AddToDefeats(int32 DefeatsAmount);
@@ -38,8 +42,9 @@ private:
 	UPROPERTY()
 	FString DUPlayerName;
 
+	//UPROPERTY(ReplicatedUsing = OnRep_WeaponType)
 	UPROPERTY()
-	EWeaponType WeaponType = EWeaponType::EWT_AssaultRifle;
+	EWeaponType WeaponType = EWeaponType::EWT_MAX;
 	
 	UPROPERTY(ReplicatedUsing = OnRep_Defeats)
 	int32 Defeats;

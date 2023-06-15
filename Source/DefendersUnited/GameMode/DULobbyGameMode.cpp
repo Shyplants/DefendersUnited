@@ -41,11 +41,10 @@ void ADULobbyGameMode::Tick(float DeltaTime)
 		waitingTimer += DeltaTime;
 		if (waitingTimer > 1.f)
 		{
-			UWorld* World = GetWorld();
-			if (World)
+			UDUGameInstance* DUGameInstance = Cast<UDUGameInstance>(GetGameInstance());
+			if (DUGameInstance)
 			{
-				bUseSeamlessTravel = true;
-				World->ServerTravel(FString("/Game/Maps/Game?listen"));
+				DUGameInstance->ServerTravelToNewMap();
 			}
 		}
 	}

@@ -10,6 +10,7 @@
 #include "GameFramework/HUD.h"
 #include "Components/CapsuleComponent.h"
 #include "Components/BoxComponent.h"
+#include "Components/ArrowComponent.h"
 #include "Kismet/GameplayStatics.h"
 #include "Kismet/KismetMathLibrary.h"
 #include "Engine/TargetPoint.h"
@@ -39,6 +40,8 @@ ADUEnemy::ADUEnemy()
 
 	DamageCollision = CreateDefaultSubobject<UBoxComponent>(TEXT("Damage Collision"));
 	DamageCollision->SetupAttachment(RootComponent);
+
+	TargetPointLocation = FVector(1540.f, -3380.f, 40.f);
 }
 
 void ADUEnemy::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
@@ -78,7 +81,6 @@ void ADUEnemy::BeginPlay()
 
 	DamageCollision->OnComponentBeginOverlap.AddDynamic(this, &ADUEnemy::OnHit);
 }
-
 
 void ADUEnemy::Tick(float DeltaTime)
 {
@@ -128,7 +130,6 @@ void ADUEnemy::ReceiveDamage(AActor* DamageActor, float Damage, const UDamageTyp
 
 	if (Health == 0.0f)
 	{
-		
 		ADUGameMode* DUGameMode = GetWorld()->GetAuthGameMode<ADUGameMode>();
 		if (DUGameMode)
 		{
@@ -210,12 +211,15 @@ void ADUEnemy::MulticastElim_Implementation()
 
 FVector ADUEnemy::GetTargetPointLocation()
 {
+	/*
 	if (!TargetPoint)
 	{
 		UE_LOG(LogTemp, Error, TEXT("TargetPoint Empty"));
 	}
 
 	return TargetPoint->GetActorLocation();
+	*/
+	return TargetPointLocation;
 }
 
 void ADUEnemy::PlayFireMontage()

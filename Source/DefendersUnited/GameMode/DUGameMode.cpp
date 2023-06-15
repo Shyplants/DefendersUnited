@@ -5,10 +5,14 @@
 #include "DefendersUnited/Character/DUCharacter.h"
 #include "DefendersUnited/Enemy/DUEnemy.h"
 #include "DefendersUnited/PlayerController/DUPlayerController.h"
+#include "DefendersUnited/Enemy/DUAIController.h"
 #include "Kismet/GameplayStatics.h"
 #include "GameFramework/PlayerStart.h"
+#include "GameFramework/GameStateBase.h"
 #include "DefendersUnited/PlayerState/DUPlayerState.h"
 #include "DefendersUnited/GameState/DUGameState.h"
+#include "DefendersUnited/GameState/DUGameInstance.h"
+#include "TimerManager.h"
 
 namespace MatchState
 {
@@ -18,7 +22,6 @@ namespace MatchState
 ADUGameMode::ADUGameMode()
 {
 	bDelayedStart = true;
-	EnemySpawnTimer = EnemySpawnTime;
 }
 
 void ADUGameMode::BeginPlay()
@@ -26,6 +29,32 @@ void ADUGameMode::BeginPlay()
 	Super::BeginPlay();
 
 	LevelStartingTime = GetWorld()->GetTimeSeconds();
+}
+
+void ADUGameMode::PostLogin(APlayerController* NewPlayer)
+{
+	Super::PostLogin(NewPlayer);
+
+	/*
+	if (GameState)
+	{
+		ADUPlayerController* DUPlayerController = Cast<ADUPlayerController>(NewPlayer);
+		UDUGameInstance* DUGameInstance = Cast<UDUGameInstance>(GetGameInstance());
+		if (DUGameInstance && DUPlayerController)
+		{
+			UE_LOG(LogTemp, Warning, TEXT("ADUGameMode PostLogin Called"));
+			DUGameInstance->ApplyPlayerState(NewPlayer);
+			
+			ADUCharacter* DUCharacter = Cast<ADUCharacter>(DUPlayerController->GetCharacter());
+			if (DUCharacter)
+			{
+				UE_LOG(LogTemp, Warning, TEXT("ADUGameMode PostLogin WeaponEquip Called"));
+				DUCharacter->WeaponType = DUPlayerController->GetWeaponType();
+				DUCharacter->EquipWeapon();
+			}
+		}
+	}
+	*/
 }
 
 void ADUGameMode::Tick(float DeltaTime)
@@ -42,12 +71,6 @@ void ADUGameMode::Tick(float DeltaTime)
 	}
 	else if (MatchState == MatchState::InProgress)
 	{
-		EnemySpawnTimer -= GetWorld()->GetTimeSeconds();
-		if (EnemySpawnTimer <= 0.f)
-		{
-			SpawnEnemy();
-			EnemySpawnTimer = EnemySpawnTime;
-		}
 		CountdownTime = WarmupTime + MatchTime - GetWorld()->GetTimeSeconds() + LevelStartingTime;
 		if (CountdownTime <= 0.f)
 		{
@@ -67,6 +90,18 @@ void ADUGameMode::Tick(float DeltaTime)
 void ADUGameMode::OnMatchStateSet()
 {
 	Super::OnMatchStateSet();
+	
+	if (MatchState == MatchState::InProgress)
+	{
+		GetWorldTimerManager().SetTimer(
+			SpawnTimer,
+			this,
+			&ADUGameMode::SpawnEnemy,
+			SpawnDelay,
+			true
+		);
+	}
+
 
 	for (FConstPlayerControllerIterator It = GetWorld()->GetPlayerControllerIterator(); It; ++It)
 	{
@@ -80,7 +115,24 @@ void ADUGameMode::OnMatchStateSet()
 
 void ADUGameMode::SpawnEnemy()
 {
+	UWorld* World = GetWorld();
+	if (World)
+	{
+		FVector SpawnLocation = FVector(10250.f, 2500.f, 110.f); // 적절한 위치로 설정해야 합니다.
 
+		// Enemy 오브젝트를 생성합니다.
+		ADUEnemy* DUEnemy = World->SpawnActor<ADUEnemy>(EnemyClass, SpawnLocation, FRotator::ZeroRotator);
+		if (DUEnemy)
+		{
+			DUEnemy->BeginPlay();
+			ADUAIController* DUAIController = Cast<ADUAIController>(DUEnemy->GetController());
+			if (DUAIController)
+			{
+				DUAIController->BeginPlay();
+			}
+		}
+		
+	}
 }
 
 void ADUGameMode::PlayerEliminated(class ADUCharacter* ElimmedCharacter, class ADUPlayerController* VictimController)

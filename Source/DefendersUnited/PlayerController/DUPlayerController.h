@@ -5,6 +5,7 @@
 #include "CoreMinimal.h"
 #include "GameFramework/PlayerController.h"
 #include "GenericTeamAgentInterface.h"
+#include "DefendersUnited/Weapon/WeaponTypes.h"
 #include "DUPlayerController.generated.h"
 
 /**
@@ -20,6 +21,15 @@ public:
 	void SetHUDDefeats(int32 Defeats);
 	void SetHUDMatchCountdown(float CountdownTime);
 	void SetHUDAnnouncementCountdown(float CountdownTime);
+	void SetDUPlayerName(FString PlayerName);
+	void SetWeaponType(EWeaponType Type);
+
+	UFUNCTION()
+	FString GetDUPlayerName();
+
+	UFUNCTION()
+	EWeaponType GetWeaponType();
+
 	virtual void OnPossess(APawn* InPawn) override;
 	virtual void Tick(float DeltaTime) override;
 	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
@@ -94,4 +104,7 @@ private:
 
 	FGenericTeamId TeamId;
 	FGenericTeamId GetGenericTeamId() const;
+
+	FString DUPlayerName;
+	EWeaponType WeaponType;
 };

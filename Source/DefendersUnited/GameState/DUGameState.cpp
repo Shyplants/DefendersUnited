@@ -27,3 +27,4 @@ void ADUGameState::UpdateTopScore(class ADUPlayerState* ScoringPlayer)
 		TopScore = ScoringPlayer->GetScore();
 	}
 }
+

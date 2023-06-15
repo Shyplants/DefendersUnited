@@ -12,6 +12,7 @@ void ADUPlayerState::GetLifetimeReplicatedProps(TArray< FLifetimeProperty >& Out
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
 
 	DOREPLIFETIME(ADUPlayerState, Defeats);
+	// DOREPLIFETIME(ADUPlayerState, WeaponType);
 }
 
 void ADUPlayerState::AddToScore(float ScoreAmount)
@@ -69,6 +70,13 @@ void ADUPlayerState::OnRep_Defeats()
 		}
 	}
 }
+
+/*
+void ADUPlayerState::OnRep_WeaponType()
+{
+	UE_LOG(LogTemp, Warning, TEXT("OnRep_WeaponType WeaponType : %d"), (int)WeaponType);
+}
+*/
 
 void ADUPlayerState::SetDUPlayerName(FString PlayerName)
 {

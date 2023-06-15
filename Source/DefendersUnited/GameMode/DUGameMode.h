@@ -20,16 +20,12 @@ class DEFENDERSUNITED_API ADUGameMode : public AGameMode
 	GENERATED_BODY()
 public:
 	ADUGameMode();
+	virtual void PostLogin(APlayerController* NewPlayer) override;
 	virtual void Tick(float DeltaTime) override;
 	virtual void PlayerEliminated(class ADUCharacter* ElimmedCharacter, class ADUPlayerController* VictimController);
 	virtual void EnemyEliminated(class ADUEnemy* ElimmedEnemy, class ADUPlayerController* AttackerController);
 	virtual void RequestRespawn(class ACharacter* ElimmedCharacter, AController* ElimmedController);
 	virtual void RequestRemoveEnemy(class ADUEnemy* ElimmedEnemy);
-
-	UPROPERTY(EditDefaultsOnly)
-	float EnemySpawnTime = 5.f;
-
-	float EnemySpawnTimer;
 
 	UPROPERTY(EditDefaultsOnly)
 	float WarmupTime = 10.f;
@@ -42,11 +38,19 @@ public:
 
 	float LevelStartingTime = 0.f;
 
+	UPROPERTY(EditDefaultsOnly)
+	TSubclassOf<class ADUEnemy> EnemyClass;
+
 protected:
 	virtual void BeginPlay() override;
 	virtual void OnMatchStateSet() override;
 
 private:
+	FTimerHandle SpawnTimer;
+
+	UPROPERTY(EditAnywhere, Category = "AI")
+	float SpawnDelay = 5.f;
+
 	void SpawnEnemy();
 
 private:

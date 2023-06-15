@@ -27,7 +27,13 @@ protected:
 	UFUNCTION(Server, Reliable)
 	void ServerOnConfirmClicked(const FString& PlayerName, EWeaponType WeaponType);
 
+private:
+	FString DUPlayerName;
+	EWeaponType DUWeaponType;
+
 
 public:
 	void OnConfirmClicked(FString PlayerName, EWeaponType WeaponType);
+	FString GetDUPlayerName();
+	EWeaponType GetWeaponType();
 };

@@ -24,9 +24,6 @@ void ADUPlayerController::BeginPlay()
 	ServerCheckMatchState();
 
 	TeamId = FGenericTeamId(10);
-
-	ADUPlayerState* DUPlayerState = GetPlayerState<ADUPlayerState>();
-	UDUGameInstance* DUGameInstance = Cast<UDUGameInstance>(GetGameInstance());
 }
 
 void ADUPlayerController::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
@@ -91,6 +88,10 @@ void ADUPlayerController::OnPossess(APawn* InPawn)
 	if (DUCharacter)
 	{
 		SetHUDHealth(DUCharacter->GetHealth(), DUCharacter->GetMaxHealth());
+		/*
+		DUCharacter->WeaponType = GetWeaponType();
+		DUCharacter->EquipWeapon();
+		*/
 	}
 }
 
@@ -236,6 +237,26 @@ void ADUPlayerController::SetHUDTime()
 	CountdownInt = SecondsLeft;
 }
 
+void ADUPlayerController::SetDUPlayerName(FString PlayerName)
+{
+	DUPlayerName = PlayerName;
+}
+
+void ADUPlayerController::SetWeaponType(EWeaponType Type)
+{
+	WeaponType = Type;
+}
+
+FString ADUPlayerController::GetDUPlayerName()
+{
+	return DUPlayerName;
+}
+
+EWeaponType ADUPlayerController::GetWeaponType()
+{
+	return WeaponType;
+}
+
 void ADUPlayerController::PollInit()
 {
 	if (CharacterOverlay == nullptr)
@@ -289,6 +310,19 @@ void ADUPlayerController::OnMatchStateSet(FName State)
 	if (MatchState == MatchState::InProgress)
 	{
 		HandleMatchHasStarted();
+
+		ADUCharacter* DUCharacter = Cast<ADUCharacter>(GetPawn());
+		UDUGameInstance* DUGameInstance = Cast<UDUGameInstance>(GetGameInstance());
+		if (DUGameInstance)
+		{
+			DUGameInstance->ApplyPlayerState(this);
+		}
+		if (DUCharacter)
+		{
+			DUCharacter->WeaponType = WeaponType;
+			DUCharacter->EquipWeapon();
+		}
+		
 	}
 	else if (MatchState == MatchState::Cooldown)
 	{
