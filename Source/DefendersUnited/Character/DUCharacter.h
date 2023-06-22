@@ -43,8 +43,6 @@ public:
 
 	bool bWeaponSpawn = false;
 
-	void EquipButtonPressed();
-
 protected:
 	virtual void BeginPlay() override;
 
@@ -52,7 +50,7 @@ protected:
 	void MoveRight(float Value);
 	void Turn(float Value);
 	void LookUp(float Value);
-	
+	void EquipButtonPressed();
 	void CrouchButtonPressed();
 	void AimButtonPressed();
 	void AimButtonReleased();
@@ -186,7 +184,6 @@ private:
 
 	UPROPERTY()
 	class ADUPlayerState* DUPlayerState;
-
 
 	/*
 	UPROPERTY(VisibleAnywhere)

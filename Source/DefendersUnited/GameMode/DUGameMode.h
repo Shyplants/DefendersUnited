@@ -49,7 +49,7 @@ private:
 	FTimerHandle SpawnTimer;
 
 	UPROPERTY(EditAnywhere, Category = "AI")
-	float SpawnDelay = 5.f;
+	float SpawnDelay = 2.f;
 
 	void SpawnEnemy();
 

@@ -23,13 +23,13 @@ protected:
 	void WeaponTraceHit(const FVector& TraceStart, const FVector& HitTarget, FHitResult& OutHit);
 
 	UPROPERTY(EditAnywhere)
-	class UParticleSystem* ImpactParticles;
+		class UParticleSystem* ImpactParticles;
 
 	UPROPERTY(EditAnywhere)
-	class USoundCue* HitSound;
+		class USoundCue* HitSound;
 
-	UPROPERTY(EditDefaultsOnly)
-	float Damage;
+	UPROPERTY(EditAnywhere)
+		float Damage = 20.f;
 private:
 
 

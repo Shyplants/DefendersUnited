@@ -36,7 +36,11 @@ void ADULobbyGameMode::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
-	if (NumberOfPlayers == 3)
+<<<<<<< HEAD
+	if (NumberOfPlayers == 4)
+=======
+	if (NumberOfPlayers == 2)
+>>>>>>> parent of d372f64 (캡스톤 최종 시연용 커밋)
 	{
 		waitingTimer += DeltaTime;
 		if (waitingTimer > 1.f)

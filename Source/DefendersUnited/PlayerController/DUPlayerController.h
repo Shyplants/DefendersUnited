@@ -106,5 +106,5 @@ private:
 	FGenericTeamId GetGenericTeamId() const;
 
 	FString DUPlayerName;
-	EWeaponType WeaponType = EWeaponType::EWT_MAX;
+	EWeaponType WeaponType;
 };
