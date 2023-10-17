@@ -1,6 +1,3 @@
-// Fill out your copyright notice in the Description page of Project Settings.
-
-
 #include "DUEnemy.h"
 #include "Net/UnrealNetwork.h"
 #include "Components/WidgetComponent.h"
@@ -23,17 +20,14 @@
 #include "DUAIController.h"
 #include "TimerManager.h"
 
-// Sets default values
 ADUEnemy::ADUEnemy()
 {
- 	// Set this character to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
 
 	GetCapsuleComponent()->SetCollisionResponseToChannel(ECollisionChannel::ECC_Camera, ECollisionResponse::ECR_Ignore);
 	GetMesh()->SetCollisionObjectType(ECC_SkeletalMesh);
 	GetMesh()->SetCollisionResponseToChannel(ECollisionChannel::ECC_Camera, ECollisionResponse::ECR_Ignore);
 	GetMesh()->SetCollisionResponseToChannel(ECollisionChannel::ECC_Visibility, ECollisionResponse::ECR_Block);
-
 
 	EnemyOverlayComponent = CreateDefaultSubobject<UWidgetComponent>(TEXT("EnemyOverlayComponent"));
 	EnemyOverlayComponent->SetupAttachment(RootComponent);
@@ -53,12 +47,10 @@ void ADUEnemy::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetime
 }
 
 
-// Called when the game starts or when spawned
 void ADUEnemy::BeginPlay()
 {
 	Super::BeginPlay();
 
-	// UpdateHUDHealth();
 	if (HasAuthority())
 	{
 		OnTakeAnyDamage.AddDynamic(this, &ADUEnemy::ReceiveDamage);
@@ -124,9 +116,7 @@ void ADUEnemy::ReceiveDamage(AActor* DamageActor, float Damage, const UDamageTyp
 	if (Health == 0.0f) return;
 
 	Health = FMath::Clamp(Health - Damage, 0.f, MaxHealth);
-	// UE_LOG(LogTemp, Warning, TEXT("Health: %f \n"), Health);
 	SetHUDHealth();
-	// PlayHitReactMontage();
 
 	if (Health == 0.0f)
 	{
@@ -150,8 +140,6 @@ void ADUEnemy::OnRep_Mode()
 void ADUEnemy::OnRep_Health()
 {
 	SetHUDHealth();
-	// UpdateHUDHealth();
-	// PlayHitReactMontage();
 }
 
 void ADUEnemy::Elim()
@@ -186,39 +174,10 @@ void ADUEnemy::MulticastElim_Implementation()
 	// Disable collision
 	GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 	GetMesh()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
-
-	/*
-	// Spawn elim bot
-	if (ElimBotEffect)
-	{
-		FVector ElimBotSpawnPoint(GetActorLocation().X, GetActorLocation().Y, GetActorLocation().Z + 200.f);
-		ElimBotComponent = UGameplayStatics::SpawnEmitterAtLocation(GetWorld(),
-			ElimBotEffect,
-			ElimBotSpawnPoint,
-			GetActorRotation()
-		);
-	}
-	if (ElimBotSound)
-	{
-		UGameplayStatics::SpawnSoundAtLocation(
-			this,
-			ElimBotSound,
-			GetActorLocation()
-		);
-	}
-	*/
 }
 
 FVector ADUEnemy::GetTargetPointLocation()
 {
-	/*
-	if (!TargetPoint)
-	{
-		UE_LOG(LogTemp, Error, TEXT("TargetPoint Empty"));
-	}
-
-	return TargetPoint->GetActorLocation();
-	*/
 	return TargetPointLocation;
 }
 
@@ -245,11 +204,6 @@ void ADUEnemy::SetHUDHealth()
 	UE_LOG(LogTemp, Warning, TEXT("SetHUDHealth Called"));
 	bool bHUDValid = EnemyOverlay &&
 		EnemyOverlay->HealthBar;
-
-	/*
-	UE_LOG(LogTemp, Warning, TEXT("EnemyOverlay Valid"), EnemyOverlay);
-	UE_LOG(LogTemp, Warning, TEXT("HealthBar Valid"), EnemyOverlay->HealthBar);
-	*/
 
 	if (bHUDValid)
 	{
